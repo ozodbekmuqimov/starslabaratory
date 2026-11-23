@@ -1,0 +1,1208 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EduLab 3D — 100+ virtual laboratoriya</title>
+<style>
+:root{--ink:#172033;--muted:#667085;--brand:#087f69;--bg:#eef4f1;--panel:#fff;--line:#dbe5e1}
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
+body{margin:0;font:15px/1.45 "Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+.top{height:68px;background:#10382f;color:#fff;display:flex;align-items:center;padding:0 24px;gap:18px}
+.brand{font-size:21px;font-weight:800}.brand b{color:#72dabd}
+.top .spacer{flex:1}
+.status{font-size:12px;color:#cce1d9}
+.status i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#68dcaf;margin-right:7px}
+.layout{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:calc(100vh - 68px);width:100%}
+.sidebar{background:#f8fbfa;border-right:1px solid var(--line);padding:16px 12px;min-width:0}
+.side-title{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#8a9a94;font-weight:800;margin:8px 12px 10px}
+.nav{width:100%;border:0;background:transparent;text-align:left;color:#52625d;border-radius:9px;padding:9px 10px;margin:2px 0;font-weight:700}
+.nav span{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;background:#edf3f0;margin-right:8px}
+.nav:hover{background:#eef5f2}
+.nav.active{background:#dcece6;color:var(--brand)}
+.main{padding:18px 22px 30px;min-width:0}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.head h1{margin:0;font-size:24px}
+.head p{margin:3px 0 0;color:var(--muted)}
+.btn{border:1px solid #cbd8d3;background:#fff;border-radius:8px;padding:8px 12px;color:#44564f;font-weight:700}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.danger{color:#b42318;border-color:#f3c7c2}
+.btn:active{transform:translateY(1px)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px;max-width:100%}
+.panel h2{font-size:17px;margin:0 0 12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+input,select,textarea{width:100%;border:1px solid #ccd8d3;border-radius:8px;padding:9px 10px;background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid #72dabd;outline-offset:1px}
+textarea{resize:vertical}
+label{display:block;font-size:12px;font-weight:800;color:#66766f;margin-bottom:5px}
+.field{margin-bottom:10px}
+
+/* Laboratoriya */
+.workspace{height:clamp(300px,56vh,520px);position:relative;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:linear-gradient(#fbfdfc 76%,#bfc5bd 76%)}
+.workspace:before{content:"";position:absolute;inset:0 0 24%;background-image:linear-gradient(#edf1ef 1px,transparent 1px),linear-gradient(90deg,#edf1ef 1px,transparent 1px);background-size:34px 34px}
+.bench-line{position:absolute;left:0;right:0;bottom:22%;height:18px;background:#969e98}
+.flask{position:absolute;left:calc(50% - 75px);bottom:23%;width:150px;height:190px}
+.flask-neck{position:absolute;left:50px;bottom:98px;width:50px;height:78px;border:5px solid #91aaa1;border-bottom:0;border-radius:8px 8px 0 0}
+.flask-body{position:absolute;bottom:0;left:13px;width:124px;height:105px;border:5px solid #91aaa1;border-top:0;border-radius:12px 12px 58px 58px;overflow:hidden}
+.liquid{position:absolute;left:0;right:0;bottom:0;height:44%;background:#72b1dc;transition:height .5s,background .5s}
+.liquid:before{content:"";position:absolute;left:0;right:0;top:-7px;height:14px;border-radius:50%;background:inherit}
+.optics{position:absolute;inset:0 0 24%;width:100%;height:76%}
+.lab-result{margin-top:10px}
+.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+.control{background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px}
+.control label{display:flex;justify-content:space-between}
+.control input[type=range]{accent-color:var(--brand);padding:0}
+.equipment-row{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 2px}
+.equipment-btn{border:1px solid #cbd8d3;background:#fff;border-radius:8px;padding:7px 10px;font-weight:700;color:#53665f}
+.equipment-btn.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.lab-apparatus{position:absolute;pointer-events:none}
+.test-tubes{left:calc(50% + 95px);bottom:24%;width:150px;height:105px;display:flex;gap:8px;align-items:flex-end}
+.test-tube{position:relative;width:28px;height:82px;border:3px solid #91aaa1;border-top:0;border-radius:0 0 14px 14px;background:#eef8f544}
+.test-tube:before{content:"";position:absolute;left:-3px;top:-12px;width:28px;height:10px;border:3px solid #91aaa1;border-bottom:0;border-radius:8px 8px 0 0}
+.test-tube i{position:absolute;left:3px;right:3px;bottom:3px;height:32%;background:#78b4d4;border-radius:0 0 10px 10px}
+.burner{left:calc(50% - 190px);bottom:24%;width:85px;height:110px}
+.burner-base{position:absolute;bottom:0;left:10px;width:65px;height:18px;border-radius:50%;background:#60716b}
+.burner-neck{position:absolute;bottom:14px;left:35px;width:15px;height:48px;border-radius:6px;background:#87958f}
+.burner-flame{position:absolute;bottom:61px;left:28px;width:30px;height:45px;border-radius:50% 50% 45% 45%;background:linear-gradient(#fff1a6 15%,#ff9c52 55%,#4a90b8);box-shadow:0 0 18px #ffb15a;transform-origin:bottom;animation:flame .35s infinite alternate}
+@keyframes flame{from{transform:scaleY(.82) rotate(-2deg)}to{transform:scaleY(1.08) rotate(2deg)}}
+.pipette{right:24px;top:20%;width:18px;height:170px;border-radius:8px;background:linear-gradient(90deg,#72978d,#dcebe6,#72978d);transform:rotate(18deg);transform-origin:top}
+.pipette:before{content:"";position:absolute;bottom:-18px;left:5px;width:8px;height:22px;background:#91aaa1;clip-path:polygon(0 0,100% 0,50% 100%)}
+.pipette:after{content:"";position:absolute;top:-16px;left:-5px;width:28px;height:30px;border-radius:7px;background:#7d918a}
+.stand{left:calc(50% - 250px);bottom:24%;width:210px;height:175px}
+.stand-post{position:absolute;left:20px;bottom:0;width:12px;height:150px;border-radius:5px;background:#66766f}
+.stand-base{position:absolute;left:-5px;bottom:-4px;width:65px;height:11px;border-radius:5px;background:#66766f}
+.stand-clamp{position:absolute;left:26px;bottom:105px;width:130px;height:8px;background:#66766f;transform:rotate(-8deg);transform-origin:left}
+.stand-clamp:after{content:"";position:absolute;right:-8px;top:-7px;width:18px;height:22px;border:4px solid #66766f;border-radius:5px}
+
+/* Davriy jadval */
+.periodic{display:grid;grid-template-columns:repeat(18,minmax(43px,1fr));grid-template-rows:repeat(7,64px) 14px repeat(2,64px);gap:4px;overflow:auto;padding-bottom:5px}
+.element{height:64px;border:1px solid #bcd1c8;border-radius:6px;background:#edf7f3;padding:4px;text-align:left;color:#21483e}
+.element b{display:block;font-size:18px}
+.element small{display:block;font-size:9px}
+.element .num{font-size:8px;color:#71817b}
+.element:hover{transform:scale(1.06);z-index:2;box-shadow:0 5px 15px #355b5025}
+.element.alkali{background:#fde9dd}.element.earth{background:#fbefd3}.element.trans{background:#edf1fa}
+.element.post{background:#e6edf1}.element.meta{background:#e9f2dd}.element.nonmetal{background:#edf7f3}
+.element.halogen{background:#f7f0dc}.element.noble{background:#faedf4}.element.lan{background:#e8e4f6}.element.act{background:#f6e2e8}
+.element-detail{border-left:5px solid var(--brand)}
+.atom-stat{border:1px solid var(--line);border-radius:8px;padding:10px;background:#fafcfb}
+.atom-stat b{display:block;font-size:20px;color:var(--brand)}
+
+/* Molekula */
+.molbox{height:420px;border:1px solid var(--line);border-radius:12px;background:radial-gradient(circle at center,#f8fcfa,#e7efeb);position:relative}
+.molbox canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.molecule-controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.chip{border:1px solid #ccd8d3;border-radius:99px;background:#fff;padding:7px 11px}
+.chip.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+/* Konvertor, natija */
+.converter-row{display:grid;grid-template-columns:1fr 80px 1fr;gap:10px;align-items:end}
+.swap{text-align:center;font-size:24px;color:var(--brand);background:none;border:0}
+.result{background:#f1f7f4;border:1px solid #d0e2da;border-radius:9px;padding:12px;margin-top:10px;min-height:56px;font-family:Georgia,serif;font-size:18px;color:#31584e}
+
+/* Ma'lumotnoma, daftarcha, jadval */
+.reference,.notebook{display:grid;grid-template-columns:220px minmax(0,1fr);gap:12px}
+.ref-list{display:flex;flex-direction:column;gap:6px}
+.ref-item{text-align:left;border:1px solid var(--line);border-radius:8px;background:#fff;padding:10px}
+.ref-item.active{border-color:var(--brand);background:#edf7f3}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{padding:9px;border-bottom:1px solid var(--line);text-align:left}
+.table th{color:#718078;font-size:11px;text-transform:uppercase}
+.rank{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#eef4f1;font-weight:800}
+.notes{max-height:520px;overflow:auto}
+.note{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:7px;background:#fff;cursor:pointer}
+.note.active{border-color:var(--brand);background:#edf7f3}
+.note small{display:block;color:var(--muted);margin-top:4px}
+.badges{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.badge{border:1px solid var(--line);border-radius:10px;text-align:center;padding:14px;background:#fff}
+.badge i{display:block;font-size:28px;font-style:normal}
+.badge.locked{filter:grayscale(1);opacity:.55}
+.toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);background:#173e34;color:#fff;border-radius:99px;padding:9px 15px;opacity:0;pointer-events:none;transition:.25s;z-index:10}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media(max-width:1050px){.layout{grid-template-columns:190px minmax(0,1fr)}.grid4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){
+ .top{padding:0 12px}.status{display:none}
+ .layout{display:block}
+ .sidebar{display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--line);padding:8px}
+ .side-title{display:none}
+ .nav{width:auto;white-space:nowrap}.nav span{display:none}
+ .main{padding:10px}
+ .grid2,.grid3,.grid4,.reference,.notebook{grid-template-columns:1fr}
+ .controls{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .equipment-btn{flex:1 1 30%;min-width:78px}
+ .head h1{font-size:20px}.head p{display:none}
+ .converter-row{grid-template-columns:1fr}.swap{display:none}
+ .badges{grid-template-columns:repeat(2,1fr)}
+}
+
+/* 3D uslub */
+.workspace{background:#e9f1ee}.workspace:before{display:none}
+.atomwrap{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:12px;align-items:stretch}
+.atomhost{height:250px;border-radius:12px;overflow:hidden;background:#0f2a24}
+.periodic{perspective:1200px}
+.element{transform-style:preserve-3d;transition:transform .2s,box-shadow .2s;box-shadow:0 3px 0 #b3c9bf,0 6px 10px #35574d22}
+.element:hover{transform:translateZ(28px) rotateX(-10deg) scale(1.12);box-shadow:0 12px 22px #35574d55;z-index:3}
+.panel{box-shadow:0 1px 0 #fff inset,0 10px 24px -14px #10382f66}
+.btn{box-shadow:0 3px 0 #c3d1cb}.btn.primary{box-shadow:0 3px 0 #05604f}
+.btn:active{transform:translateY(3px);box-shadow:none}
+@media(max-width:720px){.atomwrap{grid-template-columns:1fr}}
+.wswrap{position:relative}
+.alert3d{position:absolute;inset:0;display:grid;place-items:center;background:#10231dcc;border-radius:12px;z-index:5;padding:12px}
+.acard{background:#fff;border-radius:14px;padding:18px 20px;max-width:460px;box-shadow:0 20px 50px #0007;animation:pop .25s}
+.acard h2{margin:4px 0 8px}.acard p{margin:6px 0}.aico{font-size:44px}
+.ppenote.ok{color:#087f69;font-weight:700}.ppenote.bad{color:#b42318;font-weight:700}
+@keyframes pop{from{transform:scale(.85);opacity:0}}
+.ppe{display:flex;gap:8px;align-items:center;margin:10px 0 0;font-size:13px;color:#44564f}.ppe input{width:auto}
+.alert3d{backdrop-filter:blur(3px)}
+.acard.big{max-width:640px;width:100%;max-height:96%;overflow:auto;padding:0}
+.ahead{display:flex;gap:14px;align-items:center;padding:16px 20px;color:#fff;border-radius:14px 14px 0 0}
+.ahead h2{margin:2px 0 0;font-size:21px}.ahead small{letter-spacing:1.2px;font-weight:800;opacity:.9}.ahead .aico{font-size:40px}
+.sev-r{background:linear-gradient(135deg,#b42318,#e5622d)}.sev-o{background:linear-gradient(135deg,#b45309,#e0a030)}.sev-y{background:linear-gradient(135deg,#087f69,#3bb58f)}
+.abody{padding:14px 20px 18px}.abody section{margin-bottom:10px}
+.abody h4{margin:0 0 4px;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#66766f}
+.abody p{margin:0 0 6px}.abody ol{margin:0;padding-left:20px}.abody li{margin:2px 0}
+.rule{background:#edf7f3;border-left:4px solid var(--brand);border-radius:8px;padding:9px 12px}
+.quiz{background:#f7f9f8;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0}
+.qopt{display:block;width:100%;text-align:left;margin:5px 0;border:1px solid #cbd8d3;background:#fff;border-radius:8px;padding:8px 10px}
+.qopt.ok{background:#dcf3e8;border-color:#087f69}.qopt.bad{background:#fde3e0;border-color:#b42318}
+.afoot{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;margin-top:12px}
+.score b{color:var(--brand);font-size:18px}
+.hud{position:absolute;left:12px;top:12px;z-index:4;background:#10231ddd;color:#fff;border-radius:12px;padding:9px 12px;display:flex;gap:10px;align-items:center;font-size:13px;flex-wrap:wrap}
+.hbar{width:90px;height:6px;border-radius:9px;background:#ffffff33;overflow:hidden}.hbar i{display:block;height:100%;width:100%;background:#f2c14e}
+.hud .btn{padding:4px 8px;font-size:12px}
+/* Moslashuvchan dizayn va yangi laboratoriyalar */
+.workspace{height:clamp(300px,56vh,520px)}
+.controls{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.lab-filter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.filter-chip{border:1px solid #ccd8d3;border-radius:99px;background:#fff;padding:6px 13px;font-weight:700;color:#53665f}
+.filter-chip.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.lab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:12px}
+.lab-card{position:relative;border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff;cursor:pointer;transition:.2s;box-shadow:0 3px 0 #dbe5e1}
+.lab-card:hover{transform:translateY(-3px);border-color:var(--brand)}
+.lab-card.active{border-color:var(--brand);background:#edf7f3;box-shadow:0 3px 0 var(--brand)}
+.lab-card .ico{font-size:30px}.lab-card b{display:block;margin-top:4px}
+.lab-card small{display:block;color:var(--muted);line-height:1.35;margin-top:2px}
+.lab-card .tag{position:absolute;top:8px;right:8px;font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:#edf3f0;color:#44564f}
+.tag.chem{background:#fde9dd;color:#9a3b12}.tag.phys{background:#e0f1ee;color:#087f69}.tag.tech{background:#e8e4f6;color:#5b3fb0}.tag.bio{background:#e9f2dd;color:#3a6b12}
+.webgl-warn{position:absolute;inset:0;display:grid;place-items:center;padding:20px;text-align:center;background:#10231dee;color:#ffd0c9;z-index:6}
+.webgl-warn b{display:block;font-size:18px;color:#fff;margin-bottom:6px}
+.atomhost{position:relative}
+.head{flex-wrap:wrap;gap:6px}
+@media(max-width:480px){.main{padding:8px}.panel{padding:12px}.head h1{font-size:18px}.lab-grid{grid-template-columns:1fr 1fr}.lab-card{padding:10px}.lab-card .ico{font-size:24px}.ahead{padding:12px}.abody{padding:10px 12px}.hud{left:6px;top:6px}.afoot .btn{width:100%}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.lab-tools{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.lab-tools input{max-width:360px}
+.lab-grid{max-height:360px;overflow:auto;padding:2px 4px 6px 2px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.lab-card small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tag.earth{background:#e0eaf7;color:#1f4f8f}
+.badge small{display:block;margin-top:2px;font-size:11px}
+@media(max-width:480px){.lab-grid{max-height:300px;grid-template-columns:1fr 1fr}.lab-tools input{max-width:none}}
+</style>
+
+
+</head>
+<body>
+<header class="top"><div class="brand"><b>●</b> EduLab</div><div class="spacer"></div><div class="status"><i></i> Offline ham ishlaydi</div></header>
+<div class="layout">
+<nav class="sidebar" aria-label="Bo‘limlar">
+<div class="side-title">Asosiy bo‘limlar</div>
+<button type="button" class="nav active" data-page="lab"><span>⚗</span>Virtual laboratoriya</button>
+<button type="button" class="nav" data-page="periodic"><span>⊞</span>Interaktiv jadval</button>
+<button type="button" class="nav" data-page="molecule"><span>⌬</span>Molekula konstruktori</button>
+<button type="button" class="nav" data-page="convert"><span>⇄</span>Birlik konvertori</button>
+<button type="button" class="nav" data-page="formula"><span>ƒ</span>Formula kalkulyatori</button>
+<button type="button" class="nav" data-page="balance"><span>⚖</span>Tenglamani tenglashtirish</button>
+<button type="button" class="nav" data-page="reference"><span>▤</span>Elektron ma’lumotnoma</button>
+<button type="button" class="nav" data-page="notebook"><span>✎</span>Virtual daftarcha</button>
+<button type="button" class="nav" data-page="teacher"><span>♙</span>O‘qituvchi kabineti</button>
+<button type="button" class="nav" data-page="ranking"><span>★</span>O‘quvchi reytingi</button>
+</nav>
+<main class="main" id="main"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="./three.min.js"></script>
+<script>
+
+"use strict";
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store={
+ get(k){try{return JSON.parse(localStorage.getItem(k)||"[]")}catch(e){return[]}},
+ set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){toast("Saqlab bo‘lmadi (xotira o‘chirilgan)");return false}}
+};
+let toastTimer;
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.classList.remove("show"),2200)}
+function head(title,sub){return `<div class="head"><div><h1>${title}</h1><p>${sub}</p></div></div>`}
+
+/* ---------- Elementlar ma'lumotlari ---------- */
+const symbols="H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Rf Db Sg Bh Hs Mt Ds Rg Cn Nh Fl Mc Lv Ts Og".split(" ");
+const names=["Vodorod","Geliy","Litiy","Berilliy","Bor","Uglerod","Azot","Kislorod","Ftor","Neon","Natriy","Magniy","Aluminiy","Kremniy","Fosfor","Oltingugurt","Xlor","Argon","Kaliy","Kalsiy","Skandiy","Titan","Vanadiy","Xrom","Marganets","Temir","Kobalt","Nikel","Mis","Rux","Galliy","Germaniy","Mishyak","Selen","Brom","Kripton","Rubidiy","Stronsiy","Itriy","Tsirkoniy","Niobiy","Molibden","Texnetsiy","Ruteniy","Rodiy","Palladiy","Kumush","Kadmiy","Indiy","Qalay","Surma","Tellur","Yod","Ksenon","Seziy","Bariy","Lantan","Seriy","Prazeodim","Neodim","Prometiy","Samariy","Evropiy","Gadoliniy","Terbiy","Disprosiy","Golmiy","Erbiy","Tuliy","Itterbiy","Lyutesiy","Hafniy","Tantal","Volfram","Reniy","Osmiy","Iridiy","Platina","Oltin","Simob","Talliy","Qo‘rg‘oshin","Vismut","Poloniy","Astat","Radon","Fransiy","Radiy","Aktiniy","Toriy","Protaktiniy","Uran","Neptuniy","Plutoniy","Amerisiy","Kyuriy","Berkliy","Kaliforniy","Eynshteyniy","Fermiy","Mendeleviy","Nobeliy","Lavrensiy","Rezerfordiy","Dubniy","Siborgiy","Boriy","Hasiy","Meitneriy","Darmshtadtiy","Rentgeniy","Koperniy","Nihoniy","Fleroviy","Moskoviy","Livermoriy","Tenessin","Oganesson"];
+const massList=[1.008,4.003,6.94,9.012,10.81,12.011,14.007,15.999,18.998,20.180,22.990,24.305,26.982,28.085,30.974,32.06,35.45,39.948,39.098,40.078,44.956,47.867,50.942,51.996,54.938,55.845,58.933,58.693,63.546,65.38,69.723,72.630,74.922,78.971,79.904,83.798,85.468,87.62,88.906,91.224,92.906,95.95,98,101.07,102.906,106.42,107.868,112.414,114.818,118.710,121.760,127.60,126.904,131.293,132.905,137.327,138.905,140.116,140.908,144.242,145,150.36,151.964,157.25,158.925,162.500,164.930,167.259,168.934,173.045,174.967,178.49,180.948,183.84,186.207,190.23,192.217,195.084,196.967,200.592,204.38,207.2,208.980,209,210,222,223,226,227,232.038,231.036,238.029,237,244,243,247,247,251,252,257,258,259,266,267,268,269,270,277,278,281,282,285,286,289,290,293,294,294];
+const masses={};symbols.forEach((s,i)=>masses[s]=massList[i]);
+
+const catOf=n=>{
+ const set=a=>a.includes(n);
+ if(set([2,10,18,36,54,86,118]))return["noble","Inert gaz"];
+ if(set([3,11,19,37,55,87]))return["alkali","Ishqoriy metall"];
+ if(set([4,12,20,38,56,88]))return["earth","Ishqoriy-yer metall"];
+ if(set([9,17,35,53,85,117]))return["halogen","Galogen"];
+ if(set([1,6,7,8,15,16,34]))return["nonmetal","Metallmas"];
+ if(set([5,14,32,33,51,52]))return["meta","Yarim metall"];
+ if(n>=57&&n<=71)return["lan","Lantanoid"];
+ if(n>=89&&n<=103)return["act","Aktinoid"];
+ if((n>=21&&n<=30)||(n>=39&&n<=48)||(n>=72&&n<=80)||(n>=104&&n<=112))return["trans","O‘tuvchi metall"];
+ return["post","Boshqa metall"];
+};
+function elPos(n){
+ if(n===1)return[1,1];if(n===2)return[18,1];
+ if(n<=4)return[n-2,2];if(n<=10)return[n+8,2];
+ if(n<=12)return[n-10,3];if(n<=18)return[n,3];
+ if(n<=36)return[n-18,4];if(n<=54)return[n-36,5];
+ if(n<=56)return[n-54,6];if(n<=71)return[n-53,9];
+ if(n<=86)return[n-68,6];if(n<=88)return[n-86,7];
+ if(n<=103)return[n-85,10];return[n-100,7];
+}
+
+/* ---------- Formula tahlili (qavslar bilan) ---------- */
+function parseFormula(f){
+ const st=[{}];let i=0;
+ while(i<f.length){
+  const ch=f[i];
+  if(ch==="("){st.push({});i++}
+  else if(ch===")"){
+   i++;const m=f.slice(i).match(/^\d+/),n=m?+m[0]:1;i+=m?m[0].length:0;
+   if(st.length<2)return null;
+   const g=st.pop(),top=st[st.length-1];
+   for(const e in g)top[e]=(top[e]||0)+g[e]*n;
+  }else{
+   const m=f.slice(i).match(/^([A-Z][a-z]?)(\d*)/);
+   if(!m||!(m[1] in masses))return null;
+   const top=st[st.length-1];top[m[1]]=(top[m[1]]||0)+(m[2]?+m[2]:1);i+=m[0].length;
+  }
+ }
+ return st.length===1&&Object.keys(st[0]).length?st[0]:null;
+}
+function molarMass(f){
+ const g=parseFormula(f);if(!g)return null;
+ let sum=0;for(const e in g)sum+=masses[e]*g[e];
+ return{sum,g};
+}
+/* Tenglashtirish: chiziqli tenglamalar sistemasi (Gauss usuli) */
+function balanceEquation(eq){
+ const s=eq.replace(/\s/g,"").split(/=|→|->/);
+ if(s.length!==2||!s[0]||!s[1])return null;
+ const L=s[0].split("+"),R=s[1].split("+"),sp=L.concat(R),comp=sp.map(parseFormula);
+ if(comp.some(c=>!c))return null;
+ const els=[...new Set(comp.flatMap(c=>Object.keys(c)))];
+ const m=els.map(e=>comp.map((c,j)=>(j<L.length?1:-1)*(c[e]||0)));
+ const n=sp.length,piv=[];let r=0;
+ for(let c=0;c<n&&r<m.length;c++){
+  let p=r;for(let i=r+1;i<m.length;i++)if(Math.abs(m[i][c])>Math.abs(m[p][c]))p=i;
+  if(Math.abs(m[p][c])<1e-9)continue;
+  [m[r],m[p]]=[m[p],m[r]];const d=m[r][c];m[r]=m[r].map(x=>x/d);
+  for(let i=0;i<m.length;i++)if(i!==r){const f=m[i][c];if(f)m[i]=m[i].map((x,k)=>x-f*m[r][k])}
+  piv.push(c);r++;
+ }
+ const free=[...Array(n).keys()].filter(c=>!piv.includes(c));
+ if(free.length!==1)return null;
+ const v=Array(n).fill(0);v[free[0]]=1;piv.forEach((c,i)=>v[c]=-m[i][free[0]]);
+ for(let k=1;k<=500;k++){
+  const w=v.map(x=>x*k);
+  if(w.every(x=>Math.abs(x-Math.round(x))<1e-6)){
+   const q=w.map(Math.round);if(q.every(x=>x>0)){
+    const t=(f,i)=>(q[i]===1?"":q[i])+f;
+    return{left:L.map((f,i)=>t(f,i)),right:R.map((f,i)=>t(f,L.length+i))};
+   }
+   return null;
+  }
+ }
+ return null;
+}
+
+/* ---------- 3D dvigatel (three.js) ---------- */
+let loops=[];
+function stop3d(){loops.forEach(l=>l.dispose());loops=[]}
+function make3D(host,o={}){
+ if(!window.THREE){host.innerHTML='<div class="webgl-warn"><div><b>3D yuklanmadi</b>Three.js topilmadi.</div></div>';return null}
+ const T=THREE,w=host.clientWidth||600,h=host.clientHeight||400;
+ let r;try{r=new T.WebGLRenderer({antialias:true})}catch(e){host.innerHTML='<div class="webgl-warn"><div><b>WebGL ishlamayapti</b>Brauzer sozlamalarida apparat tezlatishni yoqing yoki boshqa brauzerdan foydalaning.</div></div>';return null}
+ r.setPixelRatio(Math.min(devicePixelRatio||1,2));r.setSize(w,h);r.setClearColor(o.bg!=null?o.bg:0xe9f1ee);
+ r.shadowMap.enabled=!!o.shadow;r.shadowMap.type=T.PCFSoftShadowMap;
+ const cv=r.domElement;cv.style.cssText="display:block;width:100%;height:100%;touch-action:none;cursor:grab";host.appendChild(cv);
+ const scene=new T.Scene(),cam=new T.PerspectiveCamera(42,w/h,.1,100),tgt=new T.Vector3(...(o.look||[0,1.5,0]));
+ let th=o.theta!=null?o.theta:.5,ph=o.phi||1.2,rad=o.radius||11,drag=false,lx=0,ly=0;
+ const place=()=>{cam.position.set(tgt.x+rad*Math.sin(ph)*Math.sin(th),tgt.y+rad*Math.cos(ph),tgt.z+rad*Math.sin(ph)*Math.cos(th));cam.lookAt(tgt)};
+ cv.onpointerdown=e=>{drag=true;lx=e.clientX;ly=e.clientY;cv.setPointerCapture(e.pointerId);cv.style.cursor="grabbing"};
+ cv.onpointermove=e=>{if(!drag)return;th-=(e.clientX-lx)*.008;ph=Math.max(.25,Math.min(1.52,ph-(e.clientY-ly)*.006));lx=e.clientX;ly=e.clientY};
+ cv.onpointerup=cv.onpointercancel=()=>{drag=false;cv.style.cursor="grab"};
+ cv.addEventListener("wheel",e=>{e.preventDefault();rad=Math.max(4,Math.min(22,rad*(1+e.deltaY*.001)))},{passive:false});
+ const l={scene,T,tick:[],shake:0,dead:false};
+ cv.addEventListener("webglcontextlost",e=>{e.preventDefault();if(!l.dead)host.insertAdjacentHTML("beforeend",'<div class="webgl-warn"><div><b>3D kontekst yo‘qoldi</b>Boshqa bo‘limga o‘tib qayting yoki sahifani yangilang.</div></div>')});
+ const ro=new ResizeObserver(()=>{const w=host.clientWidth,h=host.clientHeight;if(w&&h){r.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix()}});ro.observe(host);
+ let id,last=0;
+ l.dispose=()=>{if(l.dead)return;l.dead=true;cancelAnimationFrame(id);ro.disconnect();scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)[].concat(o.material).forEach(m=>m.dispose())});r.dispose();if(r.forceContextLoss)r.forceContextLoss();cv.remove()};
+ const loop=t=>{if(!host.isConnected){l.dispose();return}id=requestAnimationFrame(loop);const s=t/1000,dt=Math.min(.05,s-last);last=s;if(o.auto&&!drag)th+=o.auto*dt;place();l.tick.forEach(f=>f(s,dt));if(l.shake>0){cam.position.x+=(Math.random()-.5)*l.shake;cam.position.y+=(Math.random()-.5)*l.shake;l.shake=Math.max(0,l.shake-dt*1.2)}r.render(scene,cam)};
+ loops.push(l);id=requestAnimationFrame(loop);
+ return l;
+}
+function lights(S,T,shadow){
+ S.add(new T.HemisphereLight(0xffffff,0x7f9088,.75));
+ const d=new T.DirectionalLight(0xffffff,.85);d.position.set(5,10,7);
+ if(shadow){d.castShadow=true;d.shadow.mapSize.set(2048,2048);const c=d.shadow.camera;c.left=c.bottom=-10;c.right=c.top=10;c.far=35}
+ S.add(d);
+}
+
+/* ---------- Laboratoriya (3D) ---------- */
+const labs={
+ kimyo:{title:"Kislota-asos titrlash",controls:[["volume","NaOH hajmi",0,50,25,"ml",1],["mol","Konsentratsiya",0.05,0.2,0.1,"M",0.01]]},
+ fizika:{title:"Linza simulyatsiyasi",controls:[["distance","Obyekt masofasi",15,60,30,"sm",1],["focus","Fokus masofasi",5,25,10,"sm",1]]},
+ elektr:{title:"Om qonuni va elektr zanjiri",controls:[["volt","Kuchlanish",0,30,6,"V",1],["ohm","Qarshilik",1,100,20,"Ω",1]]},
+ mayatnik:{more:1,title:"Matematik mayatnik",controls:[["len","Ip uzunligi",20,200,100,"sm",5],["ang","Boshlang‘ich burchak",5,80,30,"°",1]]},
+ arximed:{more:1,title:"Arximed qonuni",controls:[["dens","Jism zichligi",200,3000,800,"kg/m³",50],["vol","Jism hajmi",50,500,200,"sm³",10]]},
+ otish:{more:1,title:"Gorizontga burchak ostida otish",controls:[["v0","Boshlang‘ich tezlik",5,30,18,"m/s",1],["alpha","Otish burchagi",10,80,45,"°",1]]},
+ gaz:{more:1,title:"Gaz qonunlari (P·V = nRT)",controls:[["gT","Harorat",250,600,300,"K",5],["gV","Hajm",1,10,5,"L",1]]},
+ vulqon:{more:1,title:"Soda va sirka reaksiyasi",controls:[["soda","Ichimlik sodasi",1,20,5,"g",1],["acid","Sirka (5%)",20,200,60,"ml",5]]},
+ ph:{more:1,title:"pH va indikator",controls:[["phv","Eritma pH qiymati",0,14,7,"",0.5]]},
+ biology:{title:"Osmoz tajribasi",controls:[["sugar","Shakar konsentratsiyasi",0,30,10,"%",1],["time","Muddati",0,60,20,"min",1]]}
+};
+/* ---------- 106 ta laboratoriya: [nomi, belgi, fan, 3D model, sozlamalar, hisob, xavf] ---------- */
+const f=(x,d=2)=>String(+Number(x).toFixed(d));
+const HZ={
+ acid:{ic:"🧪",t:"Kislota sachradi",cause:"Konsentrlangan kislotaga suv quyildi: kuchli qizib, qaynab sachradi.",sev:"Og‘ir",what:"Kislota qizib, atrofga sachradi va kuydirish xavfi tug‘ildi.",steps:["Himoya ko‘zoynagi va qo‘lqop kiying","Avval suvni idishga soling","Kislotani suvga ingichka oqim bilan, aralashtirib quying","Teriga tegsa, 15 daqiqa oqar suvda yuving"],rule:"«Avval suv, keyin kislota» — aksincha emas!",q:{t:"Kislotani suyultirishda qaysi tartib to‘g‘ri?",o:["Suvga kislota quyiladi","Kislotaga suv quyiladi","Farqi yo‘q"],a:0}},
+ beam:{ic:"🏗️",t:"Konstruksiya yemirildi",cause:"Yuk konstruksiyaning chidamliligidan oshib ketdi.",sev:"Og‘ir",what:"To‘sin yoki ustun yuk ostida sindi (ezildi).",steps:["Yukni oldindan hisoblang","Kesimni kattalashtiring yoki tayanch qo‘shing","Zaxira koeffitsiyenti (1.5–2) qo‘ying","Yuk ostida turmang"],rule:"Chidamlilikni hisob bilan tekshiring, zaxira qoldiring.",q:{t:"To‘sin qalinligi 2 marta oshsa, egilishga qarshiligi necha marta ortadi?",o:["2 marta","4 marta","8 marta"],a:2}},
+ wire:{ic:"🔥",t:"Sim qizib ketdi (ortiqcha tok)",cause:"Tok sim yoki avtomat ko‘tara oladigan miqdordan oshdi.",sev:"Og‘ir",what:"Sim qizib, izolyatsiya erib yondi — yong‘in xavfi.",steps:["Yuklamani darhol o‘chiring","Sim kesimini quvvatga mos tanlang","Mos avtomat (sug‘urta) o‘rnating","Uzaytirgichga ko‘p iste’molchi ulamang"],rule:"Sim kesimi va avtomat tokka mos bo‘lsin: P = U·I.",q:{t:"2200 W choynak 220 V da necha amper oladi?",o:["10 A","100 A","0.1 A"],a:0}}
+};
+const GEN_SPECS=[
+/* ===== FIZIKA ===== */
+["Erkin tushish","⬇️","phys","fall",[["h","Balandlik",1,100,20,"m"]],v=>{const t=Math.sqrt(2*v.h/9.81);return[`t = √(2h/g) = <b>${f(t)} s</b>, urilish tezligi v = g·t = <b>${f(9.81*t)} m/s</b>`,t/4.5]}],
+["Qiya tekislik","📐","phys","slide",[["a","Burchak",5,60,30,"°"],["mu","Ishqalanish",0,100,20,"%"]],v=>{const a=v.a*Math.PI/180,ac=9.81*(Math.sin(a)-v.mu/100*Math.cos(a));return[ac>0?`a = g(sinα − μcosα) = <b>${f(ac)} m/s²</b>`:`Jism <b>qimirlamaydi</b>: μ ≥ tgα (${f(Math.tan(a))})`,Math.max(0,ac)/9]}],
+["Nyutonning 2-qonuni","🛒","phys","slide",[["F","Kuch",1,100,30,"N"],["m","Massa",1,50,10,"kg"]],v=>{const a=v.F/v.m;return[`a = F/m = <b>${f(a)} m/s²</b>`,a/20]}],
+["Ishqalanish kuchi","🧱","phys","slide",[["m","Massa",1,100,20,"kg"],["mu","Koeffitsient",5,100,30,"%"]],v=>{const F=v.mu/100*v.m*9.81;return[`F = μmg = <b>${f(F)} N</b>`,F/981]}],
+["Kinetik energiya","🏃","phys","wheel",[["m","Massa",1,2000,70,"kg"],["v","Tezlik",1,40,10,"m/s"]],v=>{const E=v.m*v.v*v.v/2;return[`E<sub>k</sub> = mv²/2 = <b>${f(E/1000)} kJ</b>`,Math.sqrt(E/1.6e6)]}],
+["Potensial energiya","⛰️","phys","fall",[["m","Massa",1,100,10,"kg"],["h","Balandlik",1,100,20,"m"]],v=>{const E=v.m*9.81*v.h;return[`E<sub>p</sub> = mgh = <b>${f(E)} J</b>`,E/98100]}],
+["Guk qonuni","🔩","phys","spring",[["k","Bikrlik",10,500,100,"N/m"],["x","Cho‘zilish",1,30,10,"sm"]],v=>{const F=v.k*v.x/100;return[`F = kx = <b>${f(F)} N</b>, energiya E = kx²/2 = <b>${f(v.k*(v.x/100)**2/2)} J</b>`,F/150]}],
+["Prujinali mayatnik","〰️","phys","spring",[["m","Massa",0.1,5,1,"kg"],["k","Bikrlik",10,200,50,"N/m"]],v=>{const T=2*Math.PI*Math.sqrt(v.m/v.k);return[`T = 2π√(m/k) = <b>${f(T)} s</b>, f = <b>${f(1/T)} Hz</b>`,1/T/3]}],
+["Richag muvozanati","⚖️","phys","lever",[["F1","Kuch F₁",1,100,20,"N"],["d1","Yelka d₁",10,100,50,"sm"],["d2","Yelka d₂",10,100,25,"sm"]],v=>[`Muvozanat uchun F₂ = F₁·d₁/d₂ = <b>${f(v.F1*v.d1/v.d2)} N</b>`,.5]],
+["Qo‘zg‘aluvchan blok","🪢","phys","wheel",[["m","Yuk massasi",1,200,40,"kg"]],v=>{const F=v.m*9.81/2;return[`Kuchdan 2 marta yutuq: F = mg/2 = <b>${f(F)} N</b> (yuk ${f(v.m*9.81)} N)`,F/981]}],
+["Gidravlik press","🛠️","phys","bars",[["F1","Kichik porshenga kuch",10,500,100,"N"],["A1","S₁",1,20,5,"sm²"],["A2","S₂",20,500,100,"sm²"]],v=>{const F=v.F1*v.A2/v.A1;return[`F₂ = F₁·S₂/S₁ = <b>${f(F)} N</b> (${f(v.A2/v.A1)} marta yutuq)`,F/50000]}],
+["Bosim","📍","phys","bars",[["F","Kuch",10,5000,500,"N"],["S","Yuza",1,500,50,"sm²"]],v=>{const p=v.F/(v.S/1e4);return[`p = F/S = <b>${f(p/1000)} kPa</b>`,Math.log10(p)/8]}],
+["Suyuqlik bosimi","🌊","phys","tank",[["h","Chuqurlik",0,100,10,"m"],["rho","Zichlik",700,1400,1000,"kg/m³"]],v=>{const p=v.rho*9.81*v.h;return[`p = ρgh = <b>${f(p/1000)} kPa</b> (atmosfera bilan ${f((p+101325)/1000)} kPa)`,v.h/100]}],
+["Quvvat","💪","phys","wheel",[["A","Ish",100,10000,2000,"J"],["t","Vaqt",1,100,10,"s"]],v=>{const P=v.A/v.t;return[`P = A/t = <b>${f(P)} W</b>`,P/5000]}],
+["Foydali ish koeffitsiyenti","📊","phys","bars",[["Af","Foydali ish",10,1000,300,"J"],["At","Sarflangan ish",10,1000,500,"J"]],v=>{const e=v.Af/v.At*100;return[`η = A<sub>f</sub>/A<sub>t</sub> = <b>${f(Math.min(100,e),1)}%</b>`+(e>100?"<br>⚠ η 100% dan oshmaydi!":""),Math.min(1,e/100)]}],
+["Zichlik","🧊","phys","bars",[["m","Massa",1,1000,200,"g"],["V","Hajm",1,500,100,"sm³"]],v=>{const r=v.m/v.V;return[`ρ = m/V = <b>${f(r)} g/sm³</b> ${r<1?"(suvda suzadi)":"(suvda cho‘kadi)"}`,r/12]}],
+["Isitish uchun issiqlik","🔥","phys","heat",[["m","Suv massasi",0.1,10,2,"kg"],["dT","Haroratni oshirish",5,80,50,"°C"]],v=>{const Q=4200*v.m*v.dT;return[`Q = cmΔt = <b>${f(Q/1000)} kJ</b> (c = 4200 J/kg·°C)`,Q/3.36e6]}],
+["Muzning erishi","🧊","phys","heat",[["m","Muz massasi",0.1,5,1,"kg"]],v=>[`Q = λm = <b>${f(334*v.m)} kJ</b> (λ = 334 kJ/kg, 0 °C)`,v.m/5]],
+["Suvning bug‘lanishi","♨️","phys","heat",[["m","Suv massasi",0.1,5,1,"kg"]],v=>[`Q = Lm = <b>${f(2.26*v.m)} MJ</b> (L = 2.26 MJ/kg)`,v.m/5]],
+["Yoqilg‘i yonishi","⛽","phys","heat",[["m","Yoqilg‘i massasi",0.1,10,1,"kg"],["q","Yonish issiqligi",10,46,27,"MJ/kg"]],v=>{const Q=v.q*v.m;return[`Q = qm = <b>${f(Q)} MJ</b>`,Q/460]}],
+["Issiqlikdan kengayish","📏","phys","heat",[["L","Uzunlik",1,100,10,"m"],["dT","ΔT",10,100,50,"°C"],["al","α (po‘lat 12)",5,25,12,"10⁻⁶/°C"]],v=>{const d=v.al*1e-6*v.L*v.dT*1000;return[`ΔL = αLΔt = <b>${f(d)} mm</b> — relslar orasida tirqish kerak`,d/250]}],
+["Tovush tezligi","🔊","phys","wave",[["T","Havo harorati",-30,50,20,"°C"]],v=>{const c=331.3+.606*v.T;return[`v ≈ 331 + 0.6·t = <b>${f(c)} m/s</b>`,(c-300)/60]}],
+["To‘lqin uzunligi","🌐","phys","wave",[["f","Chastota",20,5000,440,"Hz"],["c","Tezlik",300,350,343,"m/s"]],v=>[`λ = v/f = <b>${f(v.c/v.f*100)} sm</b>`,v.f/5000]],
+["Doppler effekti","🚑","phys","wave",[["f","Sirena chastotasi",300,1500,700,"Hz"],["vs","Manba tezligi",0,50,25,"m/s"]],v=>[`Yaqinlashganda <b>${f(v.f*343/(343-v.vs),0)} Hz</b>, uzoqlashganda <b>${f(v.f*343/(343+v.vs),0)} Hz</b>`,v.vs/50]],
+["Yorug‘likning sinishi","🔦","phys","wave",[["a","Tushish burchagi",5,85,45,"°"],["n","Sindirish ko‘rsatkichi",1,2.5,1.5,"",0.05]],v=>{const b=Math.asin(Math.sin(v.a*Math.PI/180)/v.n)*180/Math.PI;return[`sinα/sinβ = n → β = <b>${f(b,1)}°</b>`,b/90]}],
+["Ichki to‘liq qaytish","💎","phys","wave",[["n","Sindirish ko‘rsatkichi",1.2,2.5,1.5,"",0.05]],v=>{const c=Math.asin(1/v.n)*180/Math.PI;return[`Chegaraviy burchak: sinθ = 1/n → <b>${f(c,1)}°</b>`,c/90]}],
+["Qarshiliklarni ulash","🔌","phys","circ",[["R1","R₁",1,100,10,"Ω"],["R2","R₂",1,100,20,"Ω"],["U","U",1,24,12,"V"]],v=>{const s=v.R1+v.R2,p=v.R1*v.R2/s;return[`Ketma-ket: R = <b>${f(s)} Ω</b>, I = ${f(v.U/s)} A<br>Parallel: R = <b>${f(p)} Ω</b>, I = ${f(v.U/p)} A`,v.U/p/12]}],
+["Joul–Lens qonuni","🌡️","phys","heat",[["I","Tok",1,20,5,"A"],["R","Qarshilik",1,50,10,"Ω"],["t","Vaqt",1,600,60,"s"]],v=>{const Q=v.I*v.I*v.R*v.t;return[`Q = I²Rt = <b>${f(Q/1000)} kJ</b>`,Math.log10(Q+1)/7]}],
+["Transformator","🔋","phys","bars",[["U1","U₁",10,380,220,"V"],["n1","Birlamchi o‘ramlar",100,2000,1000,""],["n2","Ikkilamchi o‘ramlar",10,2000,100,""]],v=>{const U=v.U1*v.n2/v.n1;return[`U₂ = U₁·n₂/n₁ = <b>${f(U)} V</b> — ${v.n2<v.n1?"pasaytiruvchi":"oshiruvchi"}`,U/760]}],
+["Amper kuchi","🧲","phys","bars",[["B","Induksiya",0.1,2,0.5,"T"],["I","Tok",1,50,10,"A"],["L","Sim uzunligi",1,100,20,"sm"]],v=>{const F=v.B*v.I*v.L/100;return[`F = BIL = <b>${f(F)} N</b>`,F/100]}],
+["Radioaktiv yemirilish","☢️","phys","bars",[["T","Yarim yemirilish davri",1,100,10,"yil"],["t","Vaqt",0,300,30,"yil"]],v=>{const r=Math.pow(.5,v.t/v.T);return[`N/N₀ = 2<sup>−t/T</sup> = <b>${f(r*100,1)}%</b> qoladi`,r]}],
+["Aylanma harakat","🎡","phys","wheel",[["r","Radius",0.1,10,2,"m"],["T","Aylanish davri",0.5,20,4,"s"]],v=>{const w=2*Math.PI*v.r/v.T;return[`v = 2πr/T = <b>${f(w)} m/s</b>, a = v²/r = <b>${f(w*w/v.r)} m/s²</b>`,1/(2*v.T)]}],
+["Markazga intilma kuch","🌀","phys","wheel",[["m","Massa",1,2000,1000,"kg"],["v","Tezlik",1,40,15,"m/s"],["r","Burilish radiusi",5,200,50,"m"]],v=>{const F=v.m*v.v*v.v/v.r;return[`F = mv²/r = <b>${f(F/1000)} kN</b> — burilishda yo‘ldan chiqmaslik uchun ishqalanish kerak`,F/80000]}],
+/* ===== KIMYO ===== */
+["Massa ulushi","🧂","chem","tank",[["ms","Erigan modda",1,200,30,"g"],["mr","Eritma massasi",50,1000,300,"g"]],v=>{const w=v.ms/v.mr*100;return[`ω = m<sub>modda</sub>/m<sub>eritma</sub> = <b>${f(w,1)}%</b>`+(v.ms>v.mr?"<br>⚠ modda eritmadan ko‘p bo‘lolmaydi":""),Math.min(1,w/100)]}],
+["Molyar konsentratsiya","⚗️","chem","tank",[["m","NaCl massasi",1,200,58.5,"g",0.5],["V","Hajm",0.1,2,1,"L"]],v=>{const c=v.m/58.5/v.V;return[`c = m/(M·V) = <b>${f(c)} mol/L</b> (M = 58.5)`,c/3]}],
+["Eritmani suyultirish","💧","chem","tank",[["C1","C₁",1,12,6,"M"],["V1","V₁",10,500,100,"ml"],["V2","V₂ (oxirgi hajm)",50,2000,500,"ml"]],v=>{const C=v.C1*v.V1/Math.max(v.V2,v.V1);return[`C₁V₁ = C₂V₂ → C₂ = <b>${f(C)} M</b>, qo‘shiladigan suv: <b>${f(Math.max(0,v.V2-v.V1),0)} ml</b>`+(v.V2<v.V1?"<br>⚠ V₂ ≥ V₁ bo‘lishi kerak":""),C/12]}],
+["Kislotani suyultirish xavfsizligi","⚠️","chem","tank",[["C","Kislota konsentratsiyasi",1,18,12,"M"],["ord","Tartib (0 = suvga kislota, 1 = kislotaga suv)",0,1,0,"",1]],v=>{const bad=v.ord===1&&v.C>=6;return[`Konsentrlangan kislota suyultirilganda juda ko‘p issiqlik ajraladi (ΔT ≈ ${f(v.C*4,0)} °C).`+(bad?"<br>⛔ Kislotaga suv quyildi — qaynab sachraydi!":"<br>✔ To‘g‘ri tartib: kislotani sekin suvga quying."),bad?1:v.C/18,bad?"acid":0]}],
+["Gaz hajmi (n.sh.)","🎈","chem","tank",[["n","Modda miqdori",0.1,5,1,"mol"]],v=>[`V = 22.4·n = <b>${f(22.4*v.n)} L</b>, molekulalar N = n·N<sub>A</sub> = <b>${(v.n*6.022e23).toExponential(2)}</b>`,v.n/5]],
+["Reaksiya unumi","📈","chem","bars",[["t","Nazariy massa",1,200,50,"g"],["p","Amaliy massa",1,200,40,"g"]],v=>{const e=v.p/v.t*100;return[`η = m<sub>amaliy</sub>/m<sub>nazariy</sub> = <b>${f(e,1)}%</b>`+(e>100?"<br>⚠ unum 100% dan oshmaydi":""),Math.min(1,e/100)]}],
+["Elektroliz (Faradey)","⚡","chem","circ",[["I","Tok",0.1,10,2,"A"],["t","Vaqt",1,120,30,"min"]],v=>{const m=63.5*v.I*v.t*60/(2*96485);return[`Mis cho‘kishi: m = M·I·t/(z·F) = <b>${f(m)} g</b> (CuSO₄)`,m/25]}],
+["Harorat va reaksiya tezligi","🌡️","chem","tank",[["T1","Boshlang‘ich harorat",10,60,20,"°C"],["T2","Oxirgi harorat",10,100,50,"°C"],["g","γ (van’t Hoff)",2,4,2,"",1]],v=>{const k=Math.pow(v.g,(v.T2-v.T1)/10);return[`v₂/v₁ = γ<sup>Δt/10</sup> = <b>${f(k,1)} marta</b>`,Math.log2(Math.max(1,k))/6]}],
+["Qaynash harorati va balandlik","🏔️","chem","heat",[["h","Dengiz sathidan balandlik",0,8000,0,"m"]],v=>{const T=100-v.h/300;return[`Suv taxminan <b>${f(T,1)} °C</b> da qaynaydi (har 300 m ga ≈ −1 °C)`,T/100]}],
+["Tuz bilan muzni eritish","❄️","chem","heat",[["m","Tuz miqdori",0,200,50,"g/kg suv"]],v=>{const d=1.86*v.m/58.5*2;return[`ΔT ≈ i·K·b = <b>−${f(d,1)} °C</b> (NaCl: i = 2, K = 1.86)`,1-Math.min(1,d/20)]}],
+["Osmotik bosim","🫧","chem","bars",[["c","Konsentratsiya",0.01,1,0.1,"mol/L",0.01],["T","Harorat",273,373,298,"K"]],v=>{const p=v.c*8.314*v.T;return[`π = cRT = <b>${f(p)} kPa</b>`,p/3100]}],
+["Kuchsiz kislota pH","🍋","chem","tank",[["c","Sirka kislotasi",0.001,1,0.1,"M",0.001]],v=>{const pH=-Math.log10(Math.sqrt(1.8e-5*v.c));return[`[H⁺] = √(K<sub>a</sub>c) → pH = <b>${f(pH)}</b> (K<sub>a</sub> = 1.8·10⁻⁵)`,1-pH/7]}],
+["Bufer eritma","🧴","chem","tank",[["r","[Tuz]/[Kislota]",0.1,10,1,"",0.1]],v=>{const pH=4.76+Math.log10(v.r);return[`Henderson: pH = pK<sub>a</sub> + lg(tuz/kislota) = <b>${f(pH)}</b> (pK<sub>a</sub> = 4.76)`,pH/8]}],
+["Neytrallash hajmi","🧪","chem","tank",[["Ca","HCl konsentratsiyasi",0.05,1,0.1,"M",0.05],["Va","HCl hajmi",10,100,25,"ml"],["Cb","NaOH konsentratsiyasi",0.05,1,0.1,"M",0.05]],v=>{const Vb=v.Ca*v.Va/v.Cb;return[`HCl + NaOH → NaCl + H₂O: V<sub>NaOH</sub> = C<sub>a</sub>V<sub>a</sub>/C<sub>b</sub> = <b>${f(Vb,1)} ml</b>`,Vb/200]}],
+["Spirtning yonishi","🔥","chem","heat",[["m","Etanol massasi",1,100,10,"g"]],v=>{const Q=v.m/46.07*1367;return[`C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O + <b>${f(Q,0)} kJ</b> (1367 kJ/mol); CO₂: ${f(v.m/46.07*2*22.4,1)} L`,Q/4000]}],
+/* ===== TEXNOLOGIYA ===== */
+["Non yopish vaqti","🍞","tech","heat",[["m","Non massasi",200,1500,600,"g"],["T","Pech harorati",160,250,200,"°C"]],v=>{const t=(15+v.m/30)*Math.pow(200/v.T,1.5);return[`Taxminiy vaqt: <b>${f(t,0)} min</b>`+(v.T>230?"<br>⚠ Harorat yuqori: usti kuyib, ichi xom qolishi mumkin":""),v.T/250]}],
+["Tuxum qaynatish","🥚","tech","heat",[["m","Tuxum massasi",40,80,60,"g"],["Ty","Tayyorlik (ichki harorat)",63,85,75,"°C"]],v=>{const t=.451*Math.pow(v.m,2/3)*Math.log(.76*(4-100)/(v.Ty-100));return[`Muzlatkichdan olingan tuxum uchun <b>${f(t,1)} min</b> (${v.Ty<70?"suyuq sarig‘":v.Ty<78?"yumshoq":"qattiq"})`,v.Ty/90]}],
+["Kaloriya hisobi","🥗","tech","bars",[["p","Oqsil",0,100,30,"g"],["y","Yog‘",0,100,20,"g"],["u","Uglevod",0,300,80,"g"]],v=>{const k=4*v.p+9*v.y+4*v.u;return[`E = 4·oqsil + 9·yog‘ + 4·uglevod = <b>${f(k,0)} kkal</b>`,k/1500]}],
+["Retsept porsiyasi","🍲","tech","bars",[["g0","Retsept porsiyasi",1,10,4,"",1],["g1","Kerakli porsiya",1,40,12,"",1],["m","Bir retsept uchun un",100,1000,300,"g"]],v=>{const k=v.g1/v.g0;return[`Koeffitsient ×${f(k)}: un <b>${f(v.m*k,0)} g</b>, suv va boshqa masalliqlar ham ×${f(k)}`,k/10]}],
+["Ovqat sovishi","🍵","tech","heat",[["T0","Boshlang‘ich",50,100,90,"°C"],["Te","Xona harorati",5,30,20,"°C"],["t","Vaqt",1,60,15,"min"]],v=>{const T=v.Te+(v.T0-v.Te)*Math.exp(-.03*v.t);return[`Nyuton qonuni: T = T<sub>x</sub> + (T₀−T<sub>x</sub>)e<sup>−kt</sup> = <b>${f(T,1)} °C</b>`+(T<60&&T>5?"<br>⚠ 5–60 °C — bakteriyalar tez ko‘payadigan zona":""),T/100]}],
+["Xamir ko‘tarilishi","🥖","tech","plant",[["T","Harorat",10,45,28,"°C"]],v=>{const k=Math.max(0,1-Math.pow((v.T-30)/18,2));return[`Xamirturush faolligi: <b>${f(k*100,0)}%</b> (eng yaxshisi 27–32 °C)`,k]}],
+["Sut saqlash muddati","🥛","tech","bars",[["T","Muzlatkich harorati",0,15,4,"°C"]],v=>{const d=Math.max(1,Math.round(7*Math.pow(.5,(v.T-4)/5)));return[`Yaroqlilik ≈ <b>${d} kun</b> (har 5 °C da taxminan 2 marta tez buziladi)`,d/14]}],
+["Mato sarfi (ko‘ylak)","👗","tech","bars",[["L","Mahsulot uzunligi",50,150,100,"sm"],["s","Yenglar uzunligi",0,70,60,"sm"],["w","Mato eni",90,160,140,"sm"]],v=>{const m=(v.L+v.s+15)/100*(v.w<110?2:1);return[`Taxminiy mato: <b>${f(m)} m</b> (chok va pastki qirqim 15 sm)`,m/4]}],
+["Ip sarfi","🧵","tech","bars",[["L","Chok uzunligi",1,50,10,"m"],["st","Chok qadami",1,5,2.5,"mm",0.5]],v=>{const ip=v.L*3.5;return[`Mashina tikuvi uchun ip ≈ 3.5 × chok = <b>${f(ip,1)} m</b>, ilmoqlar ≈ ${f(v.L*1000/v.st,0)}`,ip/175]}],
+["Gazlamaning kirishishi","🧺","tech","bars",[["L","Mato uzunligi",50,500,200,"sm"],["k","Kirishish",0,15,5,"%"]],v=>{const l=v.L*(1-v.k/100);return[`Yuvgandan keyin <b>${f(l,1)} sm</b> (−${f(v.L-l,1)} sm). Kesishdan oldin yuving yoki ${v.k}% zaxira qoldiring`,v.k/15]}],
+["Kiyim o‘lchami","📏","tech","bars",[["k","Ko‘krak aylanasi",70,130,92,"sm"]],v=>[`Evropa o‘lchami ≈ <b>${f(v.k/2,0)}</b> (ko‘krak/2) — ${v.k<84?"XS–S":v.k<100?"M":v.k<112?"L":"XL+"}`,(v.k-70)/60]],
+["Taxta hajmi va massasi","🪵","tech","bars",[["L","Uzunlik",50,400,200,"sm"],["b","Eni",5,40,20,"sm"],["h","Qalinlik",1,10,3,"sm"],["rho","Zichlik (qayin 650)",300,900,650,"kg/m³"]],v=>{const V=v.L*v.b*v.h/1e6;return[`V = <b>${f(V*1000)} L</b>, massa = ρV = <b>${f(V*v.rho)} kg</b>`,V/.08]}],
+["Detallarga arralash","🪚","tech","bars",[["L","Taxta uzunligi",100,400,240,"sm"],["d","Detal uzunligi",10,100,45,"sm"],["t","Arra qalinligi",1,5,3,"mm"]],v=>{const n=Math.floor((v.L*10+v.t)/(v.d*10+v.t));const left=v.L*10-n*(v.d*10+v.t)+v.t;return[`Chiqadi: <b>${n} ta</b> detal, qoldiq ≈ ${f(left/10,1)} sm`,n/20]}],
+["Quvurning issiqlikdan uzayishi","🔧","tech","heat",[["L","Quvur uzunligi",1,50,10,"m"],["dT","Harorat o‘zgarishi",10,120,80,"°C"]],v=>{const d=12e-6*v.L*v.dT*1000;return[`Po‘lat quvur uzayishi: <b>${f(d,1)} mm</b> — kompensator kerak`,d/72]}],
+["To‘sin egilishi","🏗️","tech","beam",[["L","To‘sin uzunligi",1,6,3,"m",0.1],["P","Markazdagi yuk",100,5000,1000,"N",50],["h","Qalinlik",4,20,10,"sm",0.5]],v=>{const I=.05*Math.pow(v.h/100,3)/12,d=v.P*Math.pow(v.L,3)/(48*10e9*I)*1000,lim=v.L*1000/250;return[`δ = PL³/(48EI) = <b>${f(d,1)} mm</b> (ruxsat etilgan L/250 = ${f(lim,1)} mm)`+(d>lim*2?"<br>⛔ To‘sin sinadi!":d>lim?"<br>⚠ Ruxsat etilganidan ortiq":"<br>✔ Xavfsiz"),Math.min(1,d/(lim*2)),d>lim*2?"beam":0]}],
+["Ustunning siqilishi","🏛️","tech","beam",[["F","Yuk",1,200,50,"kN"],["d","Ustun diametri",5,30,10,"sm"]],v=>{const s=v.F*1000/(Math.PI*Math.pow(v.d/100,2)/4)/1e6;return[`σ = F/A = <b>${f(s,1)} MPa</b> (yog‘och uchun ≈ 7 MPa gacha xavfsiz)`+(s>10.5?"<br>⛔ Ustun ezilib ketadi!":s>7?"<br>⚠ Ruxsat etilganidan ortiq":"<br>✔ Xavfsiz"),Math.min(1,s/10.5),s>10.5?"beam":0]}],
+["Kesish tezligi (tokarlik)","⚙️","tech","wheel",[["D","Detal diametri",10,200,50,"mm"],["n","Aylanish",100,3000,800,"ayl/min"]],v=>{const c=Math.PI*v.D*v.n/1000;return[`v = πDn/1000 = <b>${f(c,1)} m/min</b>`+(c>150?"<br>⚠ Po‘lat uchun juda tez: keskich kuyadi":""),c/300]}],
+["Tishli uzatma","⚙️","tech","wheel",[["z1","Yetaklovchi tishlar",8,60,20,""],["z2","Yetaklanuvchi tishlar",8,100,40,""],["n","Yetaklovchi aylanishi",50,3000,1000,"ayl/min"]],v=>{const n2=v.n*v.z1/v.z2;return[`i = z₂/z₁ = <b>${f(v.z2/v.z1)}</b>, n₂ = <b>${f(n2,0)} ayl/min</b>, moment ${f(v.z2/v.z1)} marta ${v.z2>v.z1?"ortadi":"kamayadi"}`,n2/3000]}],
+["Tasmali uzatma","🛞","tech","wheel",[["d1","Yetaklovchi shkiv",5,50,10,"sm"],["d2","Yetaklanuvchi shkiv",5,100,25,"sm"],["n","Dvigatel",300,3000,1400,"ayl/min"]],v=>{const n2=v.n*v.d1/v.d2;return[`n₂ = n₁·d₁/d₂ = <b>${f(n2,0)} ayl/min</b>`,n2/3000]}],
+["Dvigatel momenti","🏎️","tech","wheel",[["P","Quvvat",1,200,50,"kW"],["n","Aylanish",500,8000,3000,"ayl/min"]],v=>{const M=9550*v.P/v.n;return[`M = 9550·P/n = <b>${f(M,1)} N·m</b>`,M/200]}],
+["Vint qadami","🔩","tech","bars",[["p","Rezba qadami",0.5,3,1.5,"mm"],["n","Aylanishlar",1,50,10,"",1]],v=>{const s=v.p*v.n;return[`Gayka siljishi = qadam × aylanish = <b>${f(s,1)} mm</b>`,s/150]}],
+["Simning qarshiligi","🧶","tech","circ",[["L","Uzunlik",1,200,50,"m"],["S","Kesim yuzasi",0.5,10,1.5,"mm²"],["m","Metall (1 = mis, 2 = alyuminiy)",1,2,1,"",1]],v=>{const rho=v.m===1?.0175:.028,R=rho*v.L/v.S;return[`R = ρL/S = <b>${f(R)} Ω</b> (${v.m===1?"mis":"alyuminiy"}, ρ = ${rho} Ω·mm²/m)`,R/3]}],
+["Sim kesimi va tok","🔥","tech","circ",[["I","Tok kuchi",1,60,16,"A"],["S","Mis sim kesimi",0.5,10,1.5,"mm²"]],v=>{const j=v.I/v.S;return[`J = I/S = <b>${f(j,1)} A/mm²</b> (uy simlari uchun ≈ 6–10 A/mm² gacha)`+(j>14?"<br>⛔ Sim qizib, izolyatsiya yonadi!":j>10?"<br>⚠ Sim qizimoqda":"<br>✔ Xavfsiz"),Math.min(1,j/14),j>14?"wire":0]}],
+["Rozetka ortiqcha yuki","🔌","tech","circ",[["P","Jami quvvat",100,6000,2000,"W"],["Ibr","Avtomat",6,32,16,"A"]],v=>{const I=v.P/220;return[`I = P/U = <b>${f(I,1)} A</b> (avtomat ${v.Ibr} A)`+(I>v.Ibr*1.4?"<br>⛔ Zanjir qizib ketadi — yong‘in xavfi!":I>v.Ibr?"<br>⚠ Avtomat o‘chadi":"<br>✔ Normal"),Math.min(1,I/(v.Ibr*1.4)),I>v.Ibr*1.4?"wire":0]}],
+["Elektr xarajati","💡","tech","bars",[["P","Quvvat",10,3000,100,"W"],["h","Kuniga",1,24,5,"soat"],["tar","Tarif",300,2000,800,"so‘m/kWh"]],v=>{const k=v.P*v.h*30/1000;return[`Oyiga <b>${f(k,1)} kWh</b> → <b>${f(k*v.tar,0)} so‘m</b>`,k/90]}],
+["Quyosh paneli","☀️","tech","circ",[["P","Panel quvvati",100,600,400,"W"],["a","Nur burchagi",0,90,60,"°"],["h","Quyosh soati",1,10,5,"soat"]],v=>{const E=v.P*Math.sin(v.a*Math.PI/180)*v.h*.85;return[`Kunlik energiya ≈ P·sinα·t·0.85 = <b>${f(E/1000)} kWh</b>`,E/5000]}],
+["Akkumulyator ishlash vaqti","🔋","tech","circ",[["Ah","Sig‘im",1,200,50,"Ah"],["U","Kuchlanish",3,48,12,"V"],["P","Yuklama",5,500,60,"W"]],v=>{const t=v.Ah*v.U*.8/v.P;return[`t ≈ Ah·U·0.8/P = <b>${f(t,1)} soat</b>`,t/50]}],
+["Yoritilganlik","🔆","tech","circ",[["lm","Yorug‘lik oqimi",200,5000,1600,"lm"],["S","Xona yuzasi",3,50,15,"m²"]],v=>{const E=v.lm/v.S;return[`E = Φ/S = <b>${f(E,0)} lux</b> (o‘qish uchun 300–500 lux kerak) ${E<150?"— qorong‘i":E>=300?"✔":""}`,E/1500]}],
+["Shamol generatori","🌬️","tech","wheel",[["d","Parrak diametri",1,20,5,"m"],["v","Shamol tezligi",2,25,8,"m/s"]],v=>{const P=.5*1.2*Math.PI*Math.pow(v.d/2,2)*Math.pow(v.v,3)*.35;return[`P = ½ρAv³·C<sub>p</sub> = <b>${f(P/1000)} kW</b> (C<sub>p</sub> = 0.35)`,Math.log10(P+1)/6]}],
+["Suv isitgich","🚿","tech","heat",[["V","Hajm",10,200,80,"L"],["dT","Isitish",10,70,45,"°C"],["P","Quvvat",1000,3000,2000,"W"]],v=>{const t=4200*v.V*v.dT/v.P/3600;return[`t = cmΔt/P = <b>${f(t,1)} soat</b>`,t/5]}],
+["G‘isht hisobi","🧱","tech","bars",[["L","Devor uzunligi",1,20,6,"m"],["H","Balandlik",1,5,2.7,"m",0.1],["t","Qalinlik (1 g‘isht = 0.25 m)",0.12,0.5,0.25,"m",0.01]],v=>{const n=v.L*v.H*(v.t/.25)*102*1.05;return[`G‘isht ≈ <b>${f(n,0)} dona</b> (5% zaxira bilan)`,n/2000]}],
+["Beton hajmi","🏠","tech","bars",[["L","Uzunlik",1,20,6,"m"],["b","Eni",1,20,4,"m"],["h","Qalinlik",5,50,15,"sm"]],v=>{const V=v.L*v.b*v.h/100;return[`Beton: <b>${f(V)} m³</b>, sement ≈ ${f(V*300,0)} kg (M300), massa ≈ ${f(V*2.4,1)} t`,V/20]}],
+["Bo‘yoq sarfi","🎨","tech","bars",[["S","Yuza",5,300,40,"m²"],["q","Qavatlar soni",1,4,2,"",1]],v=>{const L=v.S*v.q/10;return[`Bo‘yoq ≈ yuza·qavat/10 = <b>${f(L,1)} L</b> (1 L ≈ 10 m²)`,L/100]}],
+["Kafel hisobi","🔲","tech","bars",[["L","Xona uzunligi",1,10,4,"m"],["b","Eni",1,10,3,"m"],["a","Kafel tomoni",10,60,30,"sm"]],v=>{const n=v.L*v.b/Math.pow(v.a/100,2)*1.1;return[`Kafel: <b>${Math.ceil(n)} dona</b> (10% zaxira)`,n/1000]}],
+["Pandus nishabi","♿","tech","slide",[["h","Balandlik",5,100,30,"sm"]],v=>[`1:12 nishab: pandus uzunligi <b>${f(v.h*12/100)} m</b>`,v.h/100]],
+["3D bosma narxi","🖨️","tech","bars",[["V","Detal hajmi",5,500,60,"sm³"],["inf","To‘ldirish",5,100,20,"%"],["c","Plastik narxi",100,400,200,"so‘m/g"]],v=>{const m=v.V*(.3+.7*v.inf/100)*1.24;return[`Plastik ≈ <b>${f(m,0)} g</b> → <b>${f(m*v.c,0)} so‘m</b> (PLA zichligi 1.24 g/sm³)`,m/600]}],
+["Robot g‘ildiragi","🤖","tech","wheel",[["d","G‘ildirak diametri",3,20,6,"sm"],["n","Dvigatel",30,300,120,"ayl/min"]],v=>{const s=Math.PI*v.d/100*v.n/60;return[`v = πdn = <b>${f(s)} m/s</b> (${f(s*3.6,1)} km/h)`,s/3]}],
+/* ===== BIOLOGIYA ===== */
+["Fotosintez tezligi","🌿","bio","plant",[["I","Yorug‘lik",0,100,50,"%"],["c","CO₂",0,100,40,"%"]],v=>{const r=Math.min(v.I,v.c*1.5)/100;return[`Tezlik cheklovchi omilga bog‘liq: <b>${f(r*100,0)}%</b> (Blekman qonuni: ${v.I<v.c*1.5?"yorug‘lik":"CO₂"} yetishmayapti)`,r]}],
+["Bakteriya ko‘payishi","🦠","bio","plant",[["t","Vaqt",0,12,4,"soat"],["td","Bo‘linish davri",20,120,30,"min"]],v=>{const n=Math.pow(2,v.t*60/v.td);return[`N = 2<sup>t/t<sub>d</sub></sup> = <b>${n>1e6?n.toExponential(2):f(n,0)}</b> ta bakteriya`,Math.min(1,Math.log10(n)/9)]}],
+["Populyatsiya o‘sishi","🐇","bio","plant",[["r","O‘sish tezligi",0.1,1,0.5,"",0.05],["t","Avlodlar",1,40,10,""]],v=>{const N=1000/(1+99*Math.exp(-v.r*v.t));return[`Logistik model (K = 1000, N₀ = 10): N = <b>${f(N,0)}</b>`,N/1000]}],
+["Tana massa indeksi","⚖️","bio","bars",[["m","Massa",30,150,70,"kg"],["h","Bo‘y",140,200,170,"sm"]],v=>{const b=v.m/Math.pow(v.h/100,2);return[`BMI = m/h² = <b>${f(b,1)}</b> — ${b<18.5?"kam vazn":b<25?"normal":b<30?"ortiqcha vazn":"semizlik"}`,b/40]}],
+["Kaloriya sarfi","🏃","bio","bars",[["m","Massa",30,150,65,"kg"],["MET","Faollik (MET)",1,12,6,"",0.5],["t","Vaqt",10,180,45,"min"]],v=>{const k=v.MET*v.m*v.t/60;return[`Sarf ≈ MET·m·t = <b>${f(k,0)} kkal</b>`,k/1500]}],
+["Bazal metabolizm","🫀","bio","bars",[["m","Massa",30,150,70,"kg"],["h","Bo‘y",140,200,175,"sm"],["y","Yosh",10,80,16,"yil"]],v=>{const b=10*v.m+6.25*v.h-5*v.y+5;return[`Mifflin–St Jeor (erkak): BMR ≈ <b>${f(b,0)} kkal/kun</b>`,b/2500]}],
+["Hardi–Vaynberg (genetika)","🧬","bio","bars",[["p","Dominant gen chastotasi",0,100,50,"%"]],v=>{const p=v.p/100,q=1-p;return[`AA = <b>${f(p*p*100,1)}%</b>, Aa = <b>${f(2*p*q*100,1)}%</b>, aa = <b>${f(q*q*100,1)}%</b>`,4*p*q/2]}],
+["Hujayra yuza/hajm nisbati","🔬","bio","bars",[["r","Hujayra radiusi",1,100,10,"µm"]],v=>[`S/V = 3/r = <b>${f(3/v.r,3)} µm⁻¹</b> — kichik hujayra moddalarni samaraliroq almashadi`,1/v.r]],
+["Urug‘ unish harorati","🌱","bio","plant",[["T","Harorat",0,45,22,"°C"]],v=>{const r=Math.max(0,1-Math.pow((v.T-25)/18,2));return[`Unish tezligi: <b>${f(r*100,0)}%</b> (optimum ≈ 25 °C)`,r]}],
+["Transpiratsiya","💧","bio","plant",[["T","Harorat",10,40,25,"°C"],["h","Havo namligi",10,100,50,"%"],["w","Shamol",0,10,2,"m/s"]],v=>{const r=v.T/40*(1-v.h/100)*(1+v.w/10);return[`Bug‘lanish indeksi: <b>${f(r*100,0)}</b> (issiq, quruq, shamolli havoda o‘simlik ko‘p suv yo‘qotadi)`,Math.min(1,r)]}],
+["Yurak urishi zonasi","❤️","bio","wave",[["y","Yosh",10,80,16,"yil"],["p","Intensivlik",50,95,70,"%"]],v=>{const mx=220-v.y;return[`HR<sub>max</sub> = 220 − yosh = <b>${mx}</b>, ish zonasi: <b>${f(mx*v.p/100,0)} urish/min</b>`,v.p/100]}],
+/* ===== YER VA KOINOT ===== */
+["Sayyorada og‘irlik","🪐","earth","fall",[["p","Sayyora (1 = Merkuriy … 8 = Neptun)",1,8,3,"",1],["m","Massa",10,150,60,"kg"]],v=>{const G=[3.7,8.87,9.81,3.71,24.8,10.4,8.87,11.2],N=["Merkuriy","Venera","Yer","Mars","Yupiter","Saturn","Uran","Neptun"],g=G[v.p-1];return[`${N[v.p-1]}: g = <b>${g} m/s²</b>, og‘irligingiz <b>${f(v.m*g,0)} N</b>`,g/25]}],
+["Kepler 3-qonuni","☄️","earth","orbit",[["a","Orbita yarim o‘qi",0.4,30,1,"AU",0.1]],v=>[`T² = a³ → T = <b>${f(Math.pow(v.a,1.5))} yil</b>`,v.a/30]],
+["Quyosh nuri yo‘li","💡","earth","wave",[["d","Masofa",0.1,40,1,"AU",0.1]],v=>[`Nur <b>${f(499*v.d/60,1)} min</b> da yetib keladi (1 AU ≈ 8.3 min)`,v.d/40]],
+["Quyosh balandligi","🌞","earth","orbit",[["fi","Kenglik",0,80,41,"°N"],["d","Deklinatsiya (fasl)",-23,23,0,"°"]],v=>{const h=90-Math.abs(v.fi-v.d);return[`Tush paytida Quyosh <b>${f(h,0)}°</b> balandlikda (Toshkent 41°N: yozda ≈ 72°, qishda ≈ 25°)`,h/90]}],
+["Sun’iy yo‘ldosh","🛰️","earth","orbit",[["h","Balandlik",200,36000,400,"km"]],v=>{const R=6371e3+v.h*1e3,s=Math.sqrt(3.986e14/R);return[`v = √(GM/R) = <b>${f(s/1000)} km/s</b>, davri <b>${f(2*Math.PI*R/s/60,0)} min</b>`,v.h/36000]}],
+["Yer ichki harorati","🌋","earth","heat",[["z","Chuqurlik",0,10,1,"km"]],v=>[`T ≈ 15 + 25·z = <b>${f(15+25*v.z,0)} °C</b> (geotermik gradient ≈ 25 °C/km)`,(15+25*v.z)/265]],
+["Zilzila energiyasi","🌍","earth","wave",[["M","Magnituda",2,9,5,"",0.1]],v=>[`lg E = 1.5M + 4.8 → E = <b>${Math.pow(10,1.5*v.M+4.8).toExponential(2)} J</b> (har 1 magnituda ≈ 32 marta ko‘p energiya)`,(v.M-2)/7]],
+["Chaqmoqgacha masofa","⛈️","earth","wave",[["t","Chaqmoq va gurs orasidagi vaqt",1,30,5,"s"]],v=>[`d = v·t = <b>${f(343*v.t/1000)} km</b> (3 s ≈ 1 km)`,v.t/30]],
+["Okean chuqurligi bosimi","🌊","earth","tank",[["h","Chuqurlik",0,11000,1000,"m"]],v=>[`p ≈ <b>${f(1025*9.81*v.h/101325+1,0)} atm</b> (Mariana botig‘i ≈ 1090 atm)`,v.h/11000]],
+["Elektrning ekologik izi","♻️","earth","plant",[["kwh","Oylik elektr",50,1000,300,"kWh"]],v=>{const c=v.kwh*.45;return[`CO₂ ≈ 0.45 kg/kWh → <b>${f(c,0)} kg/oy</b>; 1 daraxt yiliga ≈ 22 kg yutadi → <b>${f(c*12/22,0)} daraxt</b> kerak`,c/450]}],
+/* ===== ASTRONOMIYA (yangi) ===== */
+["Quyosh tizimi modeli","🪐","astro","orbit",[["speed","Orbital tezlik",0.2,3,1,"×",0.1]],v=>[`Sayyoralar Kepler qonuniga muvofiq aylanmoqda. Tezlik koeffitsienti: <b>${v.speed}×</b>`,v.speed/3]],
+["Oy fazalari","🌙","astro","orbit",[["day","Kun (0-28)",0,28,7,"kun"]],v=>{const phase=["Yangi oy","O‘sib boruvchi yarim oy","To‘lin oy","Kamayib boruvchi yarim oy"][Math.floor(v.day/7)%4];return[`Oy fazasi: <b>${phase}</b>`,v.day/28]}],
+["Quyosh tutilishi","🌑","astro","orbit",[["dist","Nisbiy masofa",0.8,1.2,1,"",0.01]],v=>[`Oy Yer va Quyosh o‘rtasida. Masofa koeffitsienti: <b>${v.dist}</b> (1.0 = to‘liq tutilish zonasi)`,Math.abs(v.dist-1)]],
+["Kometa orbitasi","☄️","astro","orbit",[["ecc","Eksentrisitet",0.1,0.95,0.6,"",0.05]],v=>[`Eliptik orbita, e = <b>${v.ecc}</b>. Periapsis yaqinida tezlik yuqori.`,v.ecc]],
+["Yulduzlar osmoni","✨","astro","wave",[["rot","Osmon aylanishi",0,360,45,"°"]],v=>[`Yulduzlar osmoni aylantirilmoqda. Burchak: <b>${v.rot}°</b>`,v.rot/360]],
+["Ikki jism gravitatsiyasi","🧲","astro","orbit",[["m1","Massa 1",1,10,5,"",0.5],["m2","Massa 2",1,10,2,"",0.5]],v=>[`Gravitatsion kuch ~ m1·m2. Nisbat: <b>${(v.m1*v.m2).toFixed(1)}</b>`,Math.min(1,(v.m1*v.m2)/50)]]
+];
+GEN_SPECS.forEach((s,i)=>{labs["g"+i]={more:1,viz:s[3],title:s[0],controls:s[4]}});
+let labKind="kimyo",LAB=null;
+const LAB_CARDS=[
+ {id:"titr",kind:"kimyo",ico:"⚗️",t:"Kislota-asos titrlash",d:"Byuretka, kolba, pH va indikator rangi",tag:"Kimyo",c:"chem"},
+ {id:"heat",kind:"kimyo",ico:"🔥",t:"Qizdirish va xavfsizlik",d:"Gorilka, probka, spirt va yong‘in xatolari",tag:"Kimyo",c:"chem",preset:1},
+ {id:"vol",kind:"vulqon",ico:"🌋",t:"Soda va sirka",d:"CO₂ ko‘pigi va idish sig‘imi",tag:"Kimyo",c:"chem"},
+ {id:"ph",kind:"ph",ico:"🧪",t:"pH va indikator",d:"Universal indikator va lakmus",tag:"Kimyo",c:"chem"},
+ {id:"optics",kind:"fizika",ico:"🔍",t:"Linza va tasvir",d:"Fokus, haqiqiy va mavhum tasvir",tag:"Fizika",c:"phys"},
+ {id:"pend",kind:"mayatnik",ico:"⏱️",t:"Matematik mayatnik",d:"Davr, uzunlik va burchak",tag:"Fizika",c:"phys"},
+ {id:"arx",kind:"arximed",ico:"🛟",t:"Arximed qonuni",d:"Suzish, cho‘kish va muallaqlik",tag:"Fizika",c:"phys"},
+ {id:"proj",kind:"otish",ico:"🎯",t:"Burchak ostida otish",d:"Traektoriya va nishonga urish",tag:"Fizika",c:"phys"},
+ {id:"gas",kind:"gaz",ico:"🎈",t:"Gaz qonunlari",d:"P·V = nRT va bosim xavfi",tag:"Fizika",c:"phys"},
+ {id:"elec",kind:"elektr",ico:"⚡",t:"Om qonuni va qisqa tutashuv",d:"Tok, qarshilik, simlar kuyishi",tag:"Texnologiya",c:"tech"},
+ {id:"osm",kind:"biology",ico:"🦠",t:"Osmoz va hujayra",d:"Gipotonik va gipertonik muhit",tag:"Biologiya",c:"bio"}
+];
+const CATN={chem:"Kimyo",phys:"Fizika",tech:"Texnologiya",bio:"Biologiya",earth:"Yer va koinot",astro:"Astronomiya"};
+GEN_SPECS.forEach((s,i)=>LAB_CARDS.push({id:"g"+i,kind:"g"+i,ico:s[1],t:s[0],d:s[4].map(c=>c[1]).join(" · "),tag:CATN[s[2]].split(" ")[0],c:s[2]}));
+let labCard="titr",labFilter="all",labQuery="";
+function labPage(){
+ const chips=[["all","Hammasi"],["chem","Kimyo"],["phys","Fizika"],["tech","Texnologiya"],["bio","Biologiya"],["earth","Yer va koinot"],["astro","Astronomiya"]];
+ return head("Virtual laboratoriya",LAB_CARDS.length+" ta 3D laboratoriya — internetsiz ham ishlaydi")+`<div class="lab-tools"><input id="labSearch" type="search" placeholder="Laboratoriya qidirish…" aria-label="Qidirish" value="${esc(labQuery)}"><span class="muted" id="labCount"></span></div><div class="lab-filter">${chips.map(c=>`<button type="button" class="filter-chip${c[0]===labFilter?" active":""}" data-f="${c[0]}">${c[1]}</button>`).join("")}</div><div class="lab-grid" id="labGrid"></div><div class="panel"><h2 id="labTitle"></h2><div class="wswrap"><div class="workspace" id="labWorkspace"></div><div class="hud hidden" id="labHud"><span>⏱ Hodisa tahlili: <b id="hudT">20</b> s</span><div class="hbar"><i id="hudBar"></i></div><button type="button" class="btn" id="hudSkip">Hozir ko‘rish</button></div><div class="alert3d hidden" id="labAlert" role="alertdialog"></div></div><div class="controls" id="labControls"></div><div class="result lab-result" id="labResult"></div><div class="muted" id="labHeat" style="margin-top:6px"></div><label class="ppe"><input type="checkbox" id="ppe" checked> Himoya vositalari (ko‘zoynak, xalat, qo‘lqop)</label><div id="labLog"></div><p class="muted" style="margin:8px 0 0">Sichqoncha yoki barmoq bilan aylantiring, g‘ildirak bilan yaqinlashtiring. «Tajribani bajarish» natijani daftarchaga saqlaydi.</p></div>`;
+}
+function bindLab(){
+ const draw=()=>{
+  const q=labQuery.trim().toLowerCase(),list=LAB_CARDS.filter(c=>(labFilter==="all"||c.c===labFilter)&&(!q||(c.t+" "+c.d).toLowerCase().includes(q)));
+  $("#labCount").textContent=list.length+" ta";
+  $("#labGrid").innerHTML=list.length?list.map(c=>`<div class="lab-card${c.id===labCard?" active":""}" data-id="${c.id}" role="button" tabindex="0"><span class="tag ${c.c}">${c.tag}</span><div class="ico">${c.ico}</div><b>${c.t}</b><small>${c.d}</small></div>`).join(""):'<p class="muted">Hech narsa topilmadi.</p>';
+  $$(".lab-card").forEach(el=>{el.onclick=()=>pick(el.dataset.id,true);el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(el.dataset.id,true)}}});
+ };
+ const pick=(id,user)=>{
+  const c=LAB_CARDS.find(x=>x.id===id);if(!c)return;labCard=id;
+  if(LAB){LAB.parts.burner.visible=!!c.preset;LAB.parts.spirit.visible=false;LAB.flame(false)}
+  renderLab(c.kind);
+  $$(".lab-card").forEach(el=>el.classList.toggle("active",el.dataset.id===id));
+  if(user){const vs=store.get("edulab_visited");if(!vs.includes(id)){vs.push(id);store.set("edulab_visited",vs)}$("#labTitle").scrollIntoView({behavior:"smooth",block:"start"})}
+ };
+ $$(".filter-chip").forEach(b=>b.onclick=()=>{labFilter=b.dataset.f;$$(".filter-chip").forEach(x=>x.classList.toggle("active",x===b));draw()});
+ $("#labSearch").oninput=e=>{labQuery=e.target.value;draw()};
+ draw();build3DLab();renderLog();pick(labCard,false);
+}
+function badgesHtml(){
+ const vs=store.get("edulab_visited"),cnt=c=>vs.filter(id=>(LAB_CARDS.find(x=>x.id===id)||{}).c===c).length;
+ const B=[["🧪","Kimyogar",cnt("chem")>=3,"3 ta kimyo"],["📐","Fizik",cnt("phys")>=5,"5 ta fizika"],["🛠️","Texnolog",cnt("tech")>=5,"5 ta texnologiya"],["🧬","Biolog",cnt("bio")>=3,"3 ta biologiya"],["🌍","Kosmos",cnt("earth")>=3,"3 ta yer/koinot"],["🔬","Tadqiqotchi",vs.length>=20,"20 ta laboratoriya"],["🛡️","Xavfsizlik ustasi",vs.length>=10&&!store.get("edulab_xato").length,"10 ta lab, 0 xato"],["🏆","Chempion",vs.length>=50,"50 ta laboratoriya"]];
+ return `<div class="badges">`+B.map(b=>`<div class="badge${b[2]?"":" locked"}"><i>${b[0]}</i><b>${b[1]}</b><small class="muted">${b[3]}</small></div>`).join("")+`</div><p class="muted" style="margin-top:10px">Ochilgan laboratoriyalar: <b>${vs.length}</b> / ${LAB_CARDS.length}</p>`;
+}
+const INFO={
+ gas:{sev:"Og‘ir",what:"Bosim idish chidamliligidan oshib, silindr portladi va piston otilib chiqdi.",steps:["Gazni qizdirishdan oldin idish chidamliligini bilib oling","Haroratni sekin oshiring va bosimni manometrdan kuzating","Hajmni kamaytirmang: bosim 1/V ga mutanosib ortadi","Bosim xavfli bo‘lsa, qizdirishni to‘xtating va hajmni oshiring"],rule:"Yopiq idishdagi gaz isiganda yoki siqilganda bosimi keskin ortadi (P = nRT / V).",q:{t:"Hajm yarmiga kamaytirilsa (T o‘zgarmas), bosim qanday o‘zgaradi?",o:["2 marta ortadi","2 marta kamayadi","O‘zgarmaydi"],a:0}},
+ foam:{sev:"Yengil",what:"Reaksiya CO₂ gazi ajratib, ko‘pik idishdan toshib chiqdi.",steps:["Gaz ajraladigan reaksiyani sig‘imi katta idishda o‘tkazing","Idishni faqat yarmigacha to‘ldiring","Reagentlarni oz-ozdan qo‘shing","Idishni hech qachon zich qopqoq bilan yopmang"],rule:"Gaz ajratuvchi reaksiyani yopiq idishda o‘tkazmang.",q:{t:"Soda va sirka reaksiyasida qaysi gaz ajraladi?",o:["Kislorod","Karbonat angidrid (CO₂)","Vodorod"],a:1}},
+ cork:{sev:"Og‘ir",what:"Probka otilib chiqdi va stakan portlab, shisha parchalari atrofga sochildi.",steps:["Idishni doim ochiq qoldiring (probkasiz)","Qizdirishdan oldin idish ochiqligini tekshiring","Olovni o‘chiring va idish sovishini kuting","Parchalarni qo‘lda emas, cho‘tka va faradan foydalanib yig‘ing"],rule:"Yopiq idishni hech qachon qizdirmang.",q:{t:"Yopiq idish qizdirilganda nega portlaydi?",o:["Shisha erib ketadi","Gaz kengayib, bosim oshadi","Suv yo‘qoladi"],a:1}},
+ dry:{sev:"O‘rta",what:"Suv qaynab tugadi va quruq stakan olov ustida yorilib ketdi.",steps:["Qizdirish paytida idish yonida turing","Suv sathini muntazam kuzating","Suv kamaysa, olovni o‘chiring","Issiq idishni tutqich bilan oling va sovishini kuting"],rule:"Qizdirilayotgan idishni qarovsiz qoldirmang.",q:{t:"Quruq idish olovda nega yoriladi?",o:["Notekis va tez qizib kengayadi","Olov shishani eritadi","Havo yetishmaydi"],a:0}},
+ spill:{sev:"Yengil",what:"Reagent kolbadan toshib, stolga to‘kildi.",steps:["Ishni to‘xtating va atrofdagilarni ogohlantiring","Himoya qo‘lqopini kiying","Kislota yoki ishqorni mos modda bilan betaraflang","Quruq latta bilan artib, o‘qituvchiga xabar bering"],rule:"Idish hajmidan ortiq suyuqlik quymang.",q:{t:"Kolbaga qancha suyuqlik solish xavfsiz?",o:["To‘lguncha","Sig‘imining taxminan yarmigacha","Faqat bir tomchi"],a:1}},
+ lysis:{sev:"O‘rta",what:"Hujayra suv shimib shishdi va membranasi yorilib ketdi (lizis).",steps:["Eritma konsentratsiyasini hujayra ichidagiga yaqin tanlang","Tajriba vaqtini nazorat qiling","Hujayra shaklini kuzatib boring","Natijani daftarchaga yozing"],rule:"Osmos yo‘nalishi konsentratsiyalar farqiga bog‘liq.",q:{t:"Gipotonik eritmada hujayra nima bo‘ladi?",o:["Suv chiqib bujmayadi","Suv kirib shishadi","O‘zgarmaydi"],a:1}},
+ fire:{sev:"Og‘ir",what:"Spirt bug‘lari ochiq olovdan alangalanib, yong‘in chiqdi.",steps:["Vahimaga tushmang, olovdan uzoqlashing","O‘chirgichni asosga qaratib purkang","Gorilka olovini o‘chiring","Yong‘in kattalashsa, xonani tark eting va 101 ga qo‘ng‘iroq qiling"],rule:"Yonuvchi suyuqliklarni ochiq olovdan uzoqda, yopiq holda saqlang.",q:{t:"Yonuvchi suyuqlik idishi gorilkadan qayerda bo‘lishi kerak?",o:["Yonida","Uzoqda, qopqog‘i yopiq","Gorilka ustida"],a:1}},
+ short:{sev:"Og‘ir",what:"Katta tok simlarni qizdirib yubordi: qisqa tutashuv, simlar kuyib uzildi.",steps:["Manbani darhol o‘chiring","Kuchlanishni kamaytirib yoki qarshilikni oshirib tokni cheklang","Zanjirga sug‘urta (predoxranitel) ulang","Yonayotgan elektr asbobiga suv sepmang"],rule:"I = U / R: qarshilik kichik bo‘lsa, tok keskin ortadi.",q:{t:"U = 12 V, R = 2 Ω bo‘lsa, tok necha amper?",o:["6 A","24 A","0.17 A"],a:0}}
+};
+function renderLog(){const el=$("#labLog");if(!el)return;const l=store.get("edulab_xato");
+ el.innerHTML=l.length?`<h3 style="font-size:14px;margin:12px 0 6px">Xatolar jurnali (${l.length}) · Xavfsizlik bali: ${Math.max(0,100-12*l.length)}/100</h3>`+l.slice(0,5).map(x=>`<div class="note"><b>${esc(x.t)}</b><small>${esc(x.d)} · ${x.p?"himoya bilan":"himoyasiz"}</small></div>`).join(""):""}
+function build3DLab(){
+ const host=$("#labWorkspace"),E=make3D(host,{shadow:true,theta:.45,phi:1.15,radius:13,look:[0,2.2,0]});
+ if(!E){LAB=null;return}
+ const T=E.T,S=E.scene;lights(S,T,true);
+ const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.55},o||{}));
+ const G=c=>new T.MeshPhysicalMaterial({color:c||0xcfe8e2,transparent:true,opacity:.3,roughness:.05,side:T.DoubleSide,depthWrite:false});
+ const mesh=(g,m,x,y,z)=>{const o=new T.Mesh(g,m);o.position.set(x||0,y||0,z||0);o.castShadow=true;o.receiveShadow=true;return o};
+ const grp=(...c)=>{const g=new T.Group();c.forEach(x=>g.add(x));return g};
+ const steel=M(0x9aa6a1,{metalness:.8,roughness:.3}),dark=M(0x44524d,{metalness:.6});
+ S.add(mesh(new T.BoxGeometry(20,.4,9),M(0x2f4a43,{roughness:.25,metalness:.1}),0,-.2,0));
+ const wall=mesh(new T.PlaneGeometry(20,10),M(0xdbe7e2),0,4.8,-4.5);wall.castShadow=false;S.add(wall);
+ const chemG=new T.Group(),physG=new T.Group(),bioG=new T.Group();S.add(chemG,physG,bioG);
+
+ /* --- Kimyo: kolba --- */
+ const prof=[[0,0],[.9,0],[1,.1],[.34,1.7],[.3,1.85],[.3,2.7],[.4,2.8]].map(p=>new T.Vector2(p[0],p[1]));
+ const flask=grp(mesh(new T.LatheGeometry(prof,48),G()));
+ const liq=mesh(new T.CylinderGeometry(.9,.94,1,40),M(0x72b1dc,{transparent:true,opacity:.85,roughness:.2}),0,.5,0);liq.castShadow=false;flask.add(liq);
+ let hL=1;
+ const setLiq=h=>{hL=h;const rt=1-.4125*(h-.05)-.04;liq.geometry.dispose();liq.geometry=new T.CylinderGeometry(rt,.94,h,40);liq.position.y=h/2+.05};
+ /* shtativ + byuretka */
+ const stand=new T.Group();
+ stand.add(mesh(new T.BoxGeometry(2.2,.2,1.4),dark,-2.8,.1,0));
+ stand.add(mesh(new T.CylinderGeometry(.07,.07,7,16),steel,-2.8,3.6,0));
+ const arm=mesh(new T.CylinderGeometry(.05,.05,2.8,12),steel,-1.4,5,0);arm.rotation.z=Math.PI/2;stand.add(arm);
+ const ring=mesh(new T.TorusGeometry(.22,.04,8,20),dark,0,5,0);ring.rotation.x=Math.PI/2;stand.add(ring);
+ stand.add(mesh(new T.CylinderGeometry(.17,.17,3.2,24,1,true),G(),0,4.9,0));
+ const bFluid=mesh(new T.CylinderGeometry(.13,.13,1,20),M(0xcfe9f5,{transparent:true,opacity:.8}),0,5,0);bFluid.castShadow=false;stand.add(bFluid);
+ const tip=mesh(new T.ConeGeometry(.08,.25,12),G(),0,3.2,0);tip.rotation.x=Math.PI;stand.add(tip);
+ const tap=mesh(new T.CylinderGeometry(.05,.05,.5,10),M(0xd14d4d),0,3.5,0);tap.rotation.z=Math.PI/2;stand.add(tap);
+ const drop=mesh(new T.SphereGeometry(.06,12,12),M(0xcfe9f5,{transparent:true,opacity:.9}),0,3.15,0);drop.visible=false;stand.add(drop);
+ /* probirkalar */
+ const rack=new T.Group();rack.position.set(-.4,0,2.5);
+ rack.add(mesh(new T.BoxGeometry(2.6,.12,.8),M(0x8b6b4a),0,.06,0));
+ const tprof=[[0,0],[.16,.04],[.17,.2],[.17,1.5],[.2,1.55]].map(p=>new T.Vector2(p[0],p[1]));
+ [0x72b1dc,0xe6a1c8,0x9fd68a].forEach((c,i)=>{const x=-.8+i*.8;
+  rack.add(mesh(new T.LatheGeometry(tprof,24),G(),x,.12,0));
+  const f=mesh(new T.CylinderGeometry(.14,.14,.65,20),M(c,{transparent:true,opacity:.85}),x,.5,0);f.castShadow=false;rack.add(f)});
+ /* gorilka + shtativ + stakan */
+ const heat=new T.Group();heat.position.x=4.2;
+ heat.add(mesh(new T.CylinderGeometry(.5,.6,.14,24),dark,0,.07,0));
+ heat.add(mesh(new T.CylinderGeometry(.1,.1,.8,16),steel,0,.5,0));
+ for(let i=0;i<3;i++){const a=i*2.094;heat.add(mesh(new T.CylinderGeometry(.03,.03,1.6,8),dark,Math.cos(a)*.65,.8,Math.sin(a)*.65))}
+ heat.add(mesh(new T.CylinderGeometry(.7,.7,.04,24),M(0x777f7b,{metalness:.5}),0,1.6,0));
+ const beaker=mesh(new T.CylinderGeometry(.55,.55,1.1,32),G(),0,2.2,0);heat.add(beaker);
+ const water=mesh(new T.CylinderGeometry(.5,.5,.8,32),M(0x72b1dc,{transparent:true,opacity:.7}),0,2.05,0);water.castShadow=false;heat.add(water);
+ const flame=new T.Mesh(new T.ConeGeometry(.16,.5,16),new T.MeshBasicMaterial({color:0xffa94d,transparent:true,opacity:.85}));flame.position.y=1.15;flame.visible=false;heat.add(flame);
+ const fl=new T.PointLight(0xff9c52,0,6);fl.position.y=1.2;heat.add(fl);
+ const bub=[];for(let i=0;i<12;i++){const b=new T.Mesh(new T.SphereGeometry(.05,8,8),new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.7}));b.position.set((Math.random()-.5)*.6,1.7+Math.random()*.7,(Math.random()-.5)*.6);b.userData.v=.5+Math.random()*.6;b.visible=false;heat.add(b);bub.push(b)}
+ /* pipetka */
+ const pip=new T.Group();
+ pip.add(mesh(new T.CylinderGeometry(.06,.06,1.8,12),G(0xe0f0ec),0,.9,0));
+ pip.add(mesh(new T.SphereGeometry(.15,16,16),M(0xc23b3b),0,1.95,0));
+ const ptip=mesh(new T.ConeGeometry(.06,.25,12),G(0xe0f0ec),0,-.1,0);ptip.rotation.x=Math.PI;pip.add(ptip);
+ pip.rotation.z=Math.PI/2;pip.position.set(-1,.14,3.3);
+ const bottle=new T.Group();bottle.position.set(2.7,0,1.3);
+ bottle.add(mesh(new T.CylinderGeometry(.3,.3,.9,24),M(0x8a5a1e,{transparent:true,opacity:.85,roughness:.15}),0,.45,0),mesh(new T.CylinderGeometry(.1,.12,.3,16),M(0x8a5a1e,{transparent:true,opacity:.85}),0,1.05,0),mesh(new T.CylinderGeometry(.13,.13,.1,16),M(0xf5f5f5),0,1.25,0),mesh(new T.BoxGeometry(.4,.4,.02),M(0xffffff),0,.5,.3));
+ const parts={flask,testtube:rack,burner:heat,stand,pipette:pip,spirit:bottle};
+ flask.visible=true;stand.visible=true;rack.visible=true;heat.visible=false;pip.visible=false;bottle.visible=false;
+ chemG.add(flask,stand,rack,heat,pip,bottle);chemG.add(mesh(new T.CylinderGeometry(.24,.24,1.2,20),M(0xc62828),-5.4,.6,2.4),mesh(new T.CylinderGeometry(.1,.1,.2,12),dark,-5.4,1.3,2.4));
+
+ /* --- Fizika: linza --- */
+ const AY=1.8,sc=.1;
+ physG.add(mesh(new T.BoxGeometry(15,.12,.5),dark,0,.06,0));
+ const lens=mesh(new T.SphereGeometry(1.6,48,32),G(0xbfe3f1),0,AY,0);lens.scale.set(.16,1,1);lens.material.opacity=.5;physG.add(lens);
+ physG.add(mesh(new T.BoxGeometry(.3,.2,.6),dark,0,.2,0));
+ physG.add(new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(-7.4,AY,0),new T.Vector3(7.4,AY,0)]),new T.LineBasicMaterial({color:0x9aa9a3})));
+ const candle=op=>{const g=new T.Group();g.add(mesh(new T.CylinderGeometry(.1,.1,1,16),M(0xf4efe0,{transparent:op<1,opacity:op}),0,.5,0));const f=new T.Mesh(new T.SphereGeometry(.09,12,12),new T.MeshBasicMaterial({color:0xffb347,transparent:op<1,opacity:op}));f.scale.y=1.6;f.position.y=1.12;g.add(f);g.position.y=AY;return g};
+ const obj=candle(1),img=candle(.5),pillar=mesh(new T.CylinderGeometry(.05,.05,AY-.12,10),steel,0,(AY+.12)/2,0);
+ const screen=mesh(new T.BoxGeometry(.05,3,2.4),M(0xffffff),0,AY,0);
+ const fM=[0,1].map(()=>{const m=new T.Mesh(new T.SphereGeometry(.07,12,12),new T.MeshBasicMaterial({color:0x087f69}));physG.add(m);m.position.y=AY;return m});
+ const mkLine=(c,op)=>{const g=new T.BufferGeometry();g.setAttribute("position",new T.BufferAttribute(new Float32Array(9),3));const l=new T.Line(g,new T.LineBasicMaterial({color:c,transparent:true,opacity:op}));l.frustumCulled=false;physG.add(l);return l};
+ const setLine=(l,p)=>{const a=l.geometry.attributes.position;for(let i=0;i<3;i++){const q=p[Math.min(i,p.length-1)];a.setXYZ(i,q[0],q[1],0)}a.needsUpdate=true};
+ const r1=mkLine(0xe0a030,1),r2=mkLine(0xd14d4d,1),b1=mkLine(0xe0a030,.4),b2=mkLine(0xd14d4d,.4);
+ physG.add(obj,img,pillar,screen);
+
+ /* --- Biologiya: osmoz --- */
+ bioG.add(mesh(new T.CylinderGeometry(1.7,1.7,3,40,1,true),G(),0,1.5,0));
+ bioG.add(mesh(new T.CylinderGeometry(1.7,1.7,.06,40),G(),0,.03,0));
+ const sol=mesh(new T.CylinderGeometry(1.62,1.62,2.2,40),M(0x83bd78,{transparent:true,opacity:.55}),0,1.13,0);sol.castShadow=false;bioG.add(sol);
+ const cell=new T.Group();cell.position.y=1.1;
+ cell.add(new T.Mesh(new T.SphereGeometry(1,32,24),M(0xe9a8a0,{transparent:true,opacity:.6,roughness:.3})));
+ cell.add(new T.Mesh(new T.SphereGeometry(.32,16,16),M(0xa94a8f)));bioG.add(cell);
+ const pp=new Float32Array(270);for(let i=0;i<90;i++){const a=Math.random()*6.28,rr=Math.sqrt(Math.random())*1.5;pp.set([Math.cos(a)*rr,.25+Math.random()*1.9,Math.sin(a)*rr],i*3)}
+ const pg=new T.BufferGeometry();pg.setAttribute("position",new T.BufferAttribute(pp,3));
+ const pts=new T.Points(pg,new T.PointsMaterial({color:0xf2c14e,size:.1}));bioG.add(pts);
+ bioG.position.y=0;
+
+ /* --- animatsiya, effektlar va xatolar (xavfsizlik darslari) --- */
+ let pending=null,fireOn=false,fireOut=false,alcT=0,burnT=0,elecBurn=false,flameOn=false,drip=0,dropY=3.15,Tw=20,wl=.8,press=0,broken=false,spill=false,lysed=false,puddle=null,puddleK=0,infoT=0;
+ const fired=new Set(),fx=[];
+ const cork=mesh(new T.CylinderGeometry(.5,.45,.22,24),M(0xb98a52),0,2.85,0);cork.visible=false;heat.add(cork);
+ const flashL=new T.PointLight(0xffe2b0,0,25);S.add(flashL);
+ const shardM=M(0xd8efe9,{transparent:true,opacity:.7,roughness:.1});
+ const burst=(x,y,z,n,col,size,spd,grav,life,shard)=>{for(let i=0;i<n;i++){
+  const m=new T.Mesh(shard?new T.BoxGeometry(size*(.5+Math.random()),size*.25,size*(.5+Math.random())):new T.SphereGeometry(size,8,8),shard?shardM:new T.MeshBasicMaterial({color:col,transparent:true,opacity:.85}));
+  const a=Math.random()*6.283,u=Math.random();
+  m.position.set(x,y,z);m.userData={v:new T.Vector3(Math.cos(a)*spd*u,spd*(.4+Math.random()),Math.sin(a)*spd*u),g:grav,life:life*(.6+Math.random()*.6),max:life,shard:!!shard};S.add(m);fx.push(m)}};
+ const incident=(key,icon,title,cause,lesson)=>{
+  if(fired.has(key))return;fired.add(key);
+  pending={key,icon,title,cause,lesson,t:20};
+  $("#labHud").classList.remove("hidden");$("#hudSkip").onclick=()=>{if(pending)pending.t=0};
+  const l=store.get("edulab_xato");l.unshift({t:title,d:new Date().toLocaleDateString("uz-UZ"),p:!!($("#ppe")&&$("#ppe").checked)});store.set("edulab_xato",l.slice(0,20));renderLog();
+ };
+ const showDebrief=P=>{
+  const I=INFO[P.key]||{sev:"O‘rta",what:P.cause,steps:[],rule:P.lesson,q:null},ppe=!!($("#ppe")&&$("#ppe").checked),el=$("#labAlert");
+  const sc=Math.max(0,100-12*store.get("edulab_xato").length),cls={"Og‘ir":"r","O‘rta":"o","Yengil":"y"}[I.sev]||"o";
+  const extra=P.key==="fire"?(fireOut?'<p class="ppenote ok">✔ Siz olovni o‘chirgich bilan o‘chirdingiz — to‘g‘ri harakat!</p>':'<p class="ppenote bad">✖ Olov o‘chirilmadi — o‘chirgichdan foydalanish kerak edi.</p>'):"";
+  const quiz=I.q?'<div class="quiz"><b>Tekshiruv savoli</b><p>'+I.q.t+'</p>'+I.q.o.map((o,i)=>'<button type="button" class="qopt" data-i="'+i+'">'+o+'</button>').join("")+'<p id="qres"></p></div>':"";
+  el.innerHTML='<div class="acard big"><div class="ahead sev-'+cls+'"><span class="aico">'+P.icon+'</span><div><small>HODISA TAHLILI · '+I.sev.toUpperCase()+'</small><h2>'+P.title+'</h2></div></div><div class="abody">'
+   +'<section><h4>Nima bo‘ldi</h4><p>'+I.what+'</p></section><section><h4>Sabab</h4><p>'+P.cause+'</p></section>'
+   +(I.steps.length?'<section><h4>To‘g‘ri usul</h4><ol>'+I.steps.map(x=>'<li>'+x+'</li>').join("")+'</ol></section>':"")
+   +'<p class="rule">🛡 '+I.rule+'</p><p class="ppenote '+(ppe?"ok":"bad")+'">'+(ppe?"✔ Himoya vositalari kiyilgan edi — jarohat olmadingiz.":"✖ Himoya vositalari yo‘q edi — ko‘z va teri jarohati olgan bo‘lardingiz!")+'</p>'+extra+quiz
+   +'<div class="afoot"><span class="score">Xavfsizlik bali: <b>'+sc+'</b>/100</span><span><button type="button" class="btn" id="saveInc">Daftarchaga saqlash</button> <button type="button" class="btn primary" id="labRetry">Qayta urinish</button></span></div></div></div>';
+  el.classList.remove("hidden");$("#labRetry").onclick=resetAll;
+  $("#saveInc").onclick=()=>{const n=store.get("edulab_notes");n.unshift({title:"Hodisa: "+P.title,text:I.what+"\nSabab: "+P.cause+"\nTo‘g‘ri usul:\n"+I.steps.map((x,i)=>(i+1)+". "+x).join("\n")+"\nQoida: "+I.rule,date:new Date().toLocaleDateString("uz-UZ")});store.set("edulab_notes",n);toast("Daftarchaga saqlandi")};
+  el.querySelectorAll(".qopt").forEach(b=>b.onclick=()=>{const ok=+b.dataset.i===I.q.a;b.classList.add(ok?"ok":"bad");$("#qres").textContent=ok?"✔ To‘g‘ri!":"✖ Noto‘g‘ri — to‘g‘ri javob: "+I.q.o[I.q.a]});
+ };
+ const shatter=(title,icon,cause,lesson,withCork)=>{
+  broken=true;beaker.visible=false;water.visible=false;const x=heat.position.x;
+  burst(x,2.2,0,34,0,.2,4,9,0,true);burst(x,2,0,20,0x72b1dc,.08,3,9,1);burst(x,2,0,22,0xffffff,.09,2.5,-1.2,2.2);
+  if(withCork){const c=mesh(new T.CylinderGeometry(.5,.45,.22,24),M(0xb98a52),x,2.85,0);c.userData={v:new T.Vector3(1.4,10,-1),g:12,life:2.2,max:2.2};S.add(c);fx.push(c)}
+  cork.visible=false;flashL.position.set(x,3,1);flashL.intensity=withCork?40:10;E.shake=withCork?.7:.35;
+  incident(withCork?"cork":"dry",icon,title,cause,lesson);
+ };
+ const chemCheck=(v,m,pH)=>{
+  if(25+v>70){if(!spill){spill=true;const col=pH>=8.2?0xd69bc9:0x72b1dc;
+   puddle=mesh(new T.CylinderGeometry(1,1,.02,40),new T.MeshStandardMaterial({color:col,transparent:true,opacity:.75,roughness:.1}),0,.02,0);puddle.castShadow=false;chemG.add(puddle);puddleK=0;
+   burst(0,2.8,0,26,col,.07,2.5,9,1.2);E.shake=.25;
+   incident("spill","💧","Kolba to‘lib ketdi","Kolba sig‘imi 70 ml, siz 25 + "+v+" ml = "+(25+v)+" ml suyuqlik quydingiz.","Idish hajmini oldindan hisoblang. Reagent to‘kilsa, betaraflashtiring va o‘qituvchiga xabar bering.")}}
+  else if(spill){spill=false;fired.delete("spill");if(puddle){chemG.remove(puddle);puddle=null}}
+ };
+ const bioCheck=dm=>{
+  if(dm>=2.5){if(!lysed){lysed=true;cell.visible=false;burst(0,1.1,0,50,0xe9a8a0,.07,3,2,1.5);E.shake=.3;
+   incident("lysis","🫧","Hujayra yorilib ketdi (lizis)","Eritmada shakar kam (gipotonik muhit): suv hujayraga kirib, membrana bosimga chiday olmadi.","Muhit konsentratsiyasi hujayradagidan juda past bo‘lsa, suv ichkariga oqadi. O‘simlik hujayrasini devor asraydi, hayvon hujayrasi esa yoriladi.")}}
+  else if(lysed){lysed=false;fired.delete("lysis");cell.visible=true}
+ };
+ const resetAll=()=>{
+  fx.splice(0).forEach(m=>S.remove(m));if(puddle){chemG.remove(puddle);puddle=null}
+  beaker.visible=true;cork.visible=false;Tw=20;wl=.8;press=0;broken=false;flameOn=false;spill=false;lysed=false;cell.visible=true;fired.clear();flashL.intensity=0;drip=0;
+  const b=$("[data-tool=burnoff]"),c=$("[data-tool=cork]");
+  if(b){b.classList.remove("active");b.textContent="Issiqlik: o‘chiq"}if(c){c.classList.remove("active");c.textContent="Probka: yo‘q"}
+  $("#labAlert").classList.add("hidden");$("#labHud").classList.add("hidden");pending=null;resetExtra();if(LAB&&LAB.moreReset)LAB.moreReset();
+  $$("#labControls input").forEach(i=>i.value=i.defaultValue);labUpdate();
+ };
+ /* --- qo'shimcha: elektr zanjiri, yong'in, hodisa vaqti --- */
+ const elecG=new T.Group();elecG.visible=false;S.add(elecG);
+ const wires=[],wireM=M(0xb87333,{metalness:.8,roughness:.35});let lastI=0,smokeT=0;
+ elecG.add(mesh(new T.BoxGeometry(9.2,3.2,.15),M(0x3b4f48),.2,1.45,-.45));
+ const seg=(x1,y1,x2,y2)=>{const d=new T.Vector3(x2-x1,y2-y1,0),m=mesh(new T.CylinderGeometry(.06,.06,d.length(),8),wireM.clone(),(x1+x2)/2,(y1+y2)/2,0);m.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());elecG.add(m);wires.push(m)};
+ seg(-3.8,2.4,-2.2,2.4);seg(-.8,2.4,1.2,2.4);seg(2.4,2.4,4.2,2.4);seg(-3.8,.5,-3.8,2.4);seg(4.2,.5,4.2,2.4);seg(-3.8,.5,-.8,.5);seg(.8,.5,4.2,.5);
+ const res=mesh(new T.CylinderGeometry(.26,.26,1.4,20),M(0xd9c9a3),-1.5,2.4,0);res.rotation.z=Math.PI/2;elecG.add(res);
+ [0xb91c1c,0x111111,0xe0a030].forEach((c,i)=>{const b=mesh(new T.CylinderGeometry(.275,.275,.1,20),M(c),-1.9+i*.25,2.4,0);b.rotation.z=Math.PI/2;elecG.add(b)});
+ elecG.add(mesh(new T.BoxGeometry(1.6,.8,.8),M(0x2a3b36),0,.5,0),mesh(new T.BoxGeometry(1.6,.28,.82),M(0xf2c14e),0,.76,0));
+ const bulbMat=new T.MeshStandardMaterial({color:0xfff3c0,emissive:0xffc94d,emissiveIntensity:0,transparent:true,opacity:.8,roughness:.1});
+ const bulb=mesh(new T.SphereGeometry(.6,32,24),bulbMat,1.8,2.4,0);bulb.castShadow=false;elecG.add(bulb,mesh(new T.CylinderGeometry(.3,.3,.35,16),dark,1.8,1.85,0));
+ const bulbL=new T.PointLight(0xffc94d,0,10);bulbL.position.set(1.8,2.4,1);elecG.add(bulbL);
+ const fireG=new T.Group();fireG.position.set(2.7,.95,1.3);fireG.visible=false;
+ [[0,0,.5,0xff7a1a],[.25,.1,.4,0xffb347],[-.2,-.1,.45,0xff5a1a],[.05,.2,.35,0xffe08a]].forEach(([x,z,h,c])=>{const f=new T.Mesh(new T.ConeGeometry(.22,h*2.4,12),new T.MeshBasicMaterial({color:c,transparent:true,opacity:.85}));f.position.set(x,h*1.2,z);fireG.add(f)});
+ const fireL=new T.PointLight(0xff8a3c,0,9);fireL.position.y=1;fireG.add(fireL);chemG.add(fireG);
+ const ignite=()=>{fireOn=true;fireOut=false;fireG.visible=true;flashL.position.set(2.7,2,1.5);flashL.intensity=25;E.shake=.45;burst(2.7,1.2,1.3,18,0x333333,.12,1.4,-1.5,2.5);
+  incident("fire","🔥","Spirt bug‘lari alangalandi","Yonuvchi spirt ochiq olov yonida turardi — uning bug‘lari alangalanib ketdi.","")};
+ const extinguish=()=>{if(!fireOn){toast("O‘chiriladigan olov yo‘q");return}fireOn=false;fireOut=true;fireG.visible=false;fireL.intensity=0;burst(2.7,1.1,1.3,60,0xffffff,.1,4,5,1.4);toast("Olov o‘chirildi ✔")};
+ const burn=()=>{elecBurn=true;bulbMat.emissiveIntensity=0;bulbL.intensity=0;wires[1].visible=false;wires.forEach(w=>w.material.color.set(0x2a2a2a));
+  burst(-.2,2.4,0,45,0xffd24d,.05,5,9,.9);burst(-.2,2.5,0,20,0x555555,.1,1,-1.2,2.4);flashL.position.set(0,3,2);flashL.intensity=18;E.shake=.4;
+  incident("short","⚡","Qisqa tutashuv: simlar kuyib ketdi","Qarshilik juda kichik, kuchlanish katta bo‘lgani uchun tok 3.5 A dan oshdi va simlar qizib ketdi.","")};
+ const elec=(U,R)=>{const I=U/R;lastI=I;bulbMat.emissiveIntensity=elecBurn?0:Math.min(2.5,I*.9);bulbL.intensity=elecBurn?0:Math.min(2,I*.8);return{I,P:U*I}};
+ const resetExtra=()=>{fireOn=false;fireOut=false;alcT=0;fireG.visible=false;fireL.intensity=0;burnT=0;elecBurn=false;wires.forEach(w=>{w.visible=true;w.material.color.set(0xb87333)})};
+ const extraTick=(s,dt)=>{
+  if(pending){pending.t-=dt;const t=Math.max(0,pending.t);$("#hudT").textContent=Math.ceil(t);$("#hudBar").style.width=(t/20*100)+"%";if(pending.t<=0){const P=pending;pending=null;$("#labHud").classList.add("hidden");showDebrief(P)}}
+  if(bottle.visible&&flameOn&&heat.visible&&!fireOn&&!fireOut)alcT+=dt;else alcT=Math.max(0,alcT-dt*.5);
+  if(alcT>4&&!fireOn){alcT=0;ignite()}
+  if(fireOn){fireG.children.forEach((c,i)=>{if(c.isMesh)c.scale.set(1+Math.sin(s*20+i)*.12,1+Math.sin(s*26+i*2)*.2,1)});fireL.intensity=2+Math.sin(s*18)*.6;if(Math.random()<dt*10)burst(2.7,1.6,1.3,1,0x333333,.1,.4,-1.5,2)}
+  if(elecG.visible&&!elecBurn){
+   const h=Math.min(1,lastI/3.5),hh=h*h;wires.forEach(w=>w.material.color.setRGB(.72+.28*hh,.45-.3*hh,.2-.15*hh));
+   if(lastI>=3.5){burnT+=dt;smokeT+=dt;if(smokeT>.15){smokeT=0;burst(-.2+Math.random()*2,2.5,0,1,0x555555,.08,.5,-1.2,1.6)}if(burnT>3)burn()}else burnT=Math.max(0,burnT-dt)}
+ };
+ E.tick.push((s,dt)=>{
+  extraTick(s,dt);
+  if(flameOn&&heat.visible){
+   flame.visible=true;const f=1+Math.sin(s*30)*.08+Math.sin(s*47)*.05;flame.scale.set(f,1+Math.sin(s*25)*.12,f);fl.intensity=1.2+Math.sin(s*20)*.2;
+   bub.forEach(b=>{b.visible=!broken&&Tw>60;b.position.y+=dt*b.userData.v*(Tw>=100?2:1);if(b.position.y>2.45)b.position.y=1.75});
+  }else{flame.visible=false;fl.intensity=0;bub.forEach(b=>b.visible=false)}
+  if(heat.visible&&!broken){
+   if(flameOn){Tw=Math.min(100,Tw+dt*12);if(Tw>=100&&!cork.visible)wl=Math.max(0,wl-dt*.06);
+    if(cork.visible){press+=dt;if(press>5)shatter("Yopiq idish portladi","💥","Probkali (yopiq) idishni qizdirdingiz: bug bosimi probkani otib yubordi va shishani yorib yubordi.","Yopiq idishni hech qachon qizdirmang: gaz kengayib, bosim oshadi. Idish doim ochiq bo‘lsin.",true)}
+    if(wl<=.04)shatter("Shisha yorilib ketdi","🔥","Suv qaynab tugadi, quruq shisha olov ustida qolib notekis qizidi va yorildi.","Qizdirilayotgan idishni qarovsiz qoldirmang, suv sathini kuzating va olovni o‘z vaqtida o‘chiring.",false)}
+   else{Tw=Math.max(20,Tw-dt*2);press=Math.max(0,press-dt)}
+   water.scale.y=Math.max(.01,wl/.8);water.position.y=1.65+Math.max(.01,wl)/2;water.visible=wl>.03;
+  }
+  infoT+=dt;if(infoT>.2){infoT=0;const hi=$("#labHeat");if(hi&&labKind==="kimyo")hi.textContent=heat.visible?`Stakan: ${Math.round(Tw)}°C · suv ${Math.round(wl/.8*100)}%`+(cork.visible?` · bosim ${Math.min(100,Math.round(press/5*100))}%`:"")+(Tw>=100&&!broken?" · qaynayapti":"")+(bottle.visible&&flameOn&&!fireOn?` · spirt bug‘i ${Math.min(100,Math.round(alcT/4*100))}%`:""):""}
+  if(drip>0){drip-=dt;drop.visible=true;dropY-=dt*4;if(dropY<hL+.05)dropY=3.15;drop.position.y=dropY}else drop.visible=false;
+  if(puddle){puddleK=Math.min(1,puddleK+dt*.6);puddle.scale.set(.2+puddleK*2,1,.2+puddleK*2)}
+  cell.rotation.y+=dt*.3;cell.position.y=1.1+Math.sin(s)*.08;
+  flashL.intensity=Math.max(0,flashL.intensity-dt*40);
+  for(let i=fx.length-1;i>=0;i--){const m=fx[i],u=m.userData;if(u.rest)continue;
+   u.life-=dt;m.position.addScaledVector(u.v,dt);u.v.y-=u.g*dt;
+   if(u.shard){m.rotation.x+=dt*5;m.rotation.z+=dt*4;if(m.position.y<.08){m.position.y=.08;u.rest=true}}
+   else{if(u.max&&m.material.opacity!==undefined)m.material.opacity=Math.max(0,u.life/u.max);if(u.life<=0){S.remove(m);fx.splice(i,1)}}}
+ });
+ LAB={parts,
+  show(k){chemG.visible=k==="kimyo";physG.visible=k==="fizika";bioG.visible=k==="biology";elecG.visible=k==="elektr"},
+  flame(on){flameOn=on},run(){drip=3},stopper(on){cork.visible=on;press=0},extinguish,elec,
+  chem(v,m,pH){chemCheck(v,m,pH);setLiq(.45+v*.015);liq.material.color.set(pH>=8.2?0xd69bc9:0x72b1dc);const f=Math.max(.001,(50-v)/50*2.8);bFluid.scale.y=f;bFluid.position.y=3.5+f/2},
+  phys(d,f){
+   const ox=-d*sc,inf=Math.abs(d-f)<.01,v=inf?0:d*f/(d-f),m=inf?0:-v/d,ix=Math.max(-7,Math.min(7,v*sc)),Ty=AY+1.1,real=!inf&&v>0;
+   obj.position.x=ox;pillar.position.x=ox;fM[0].position.x=-f*sc;fM[1].position.x=f*sc;
+   const Y1=x=>Ty+(AY-Ty)/(f*sc)*x,Y2=x=>AY+(AY-Ty)/(d*sc)*x,Xe=real?Math.min(7,ix+1.2):7;
+   setLine(r1,[[ox,Ty],[0,Ty],[Xe,Y1(Xe)]]);setLine(r2,[[ox,Ty],[0,AY],[Xe,Y2(Xe)]]);
+   img.visible=!inf;screen.visible=real;b1.visible=b2.visible=!inf&&v<0;
+   if(!inf){img.position.x=ix;img.scale.y=Math.max(-3,Math.min(3,m));screen.position.x=ix;const Iy=AY+1.1*m;setLine(b1,[[0,Ty],[ix,Iy]]);setLine(b2,[[0,AY],[ix,Iy]])}
+   return{inf,v,m};
+  },
+  bio(s,t,dm){bioCheck(dm);sol.material.color.set(s>15?0xd7a36b:0x83bd78);const k=Math.max(.5,1+dm*.06);cell.scale.setScalar(.6*k);pg.setDrawRange(0,Math.round(s*3))}
+ };
+ LAB.show("kimyo");
+ moreLabs({E,T,S,M,G,mesh,steel,dark,burst,incident,fired,flashL,LAB});
+}
+/* ---------- Qo'shimcha laboratoriyalar (3D) ---------- */
+/* ---------- 3D modellar (13 ta) va umumiy hisoblash mexanizmi ---------- */
+function genLabs(C,MORE,fired){
+ const {E,T,S,M,G,mesh,steel,dark,burst,incident,flashL}=C,VG={},A={};
+ const mkv=id=>{const g=new T.Group();g.visible=false;S.add(g);VG[id]=g;g.add(mesh(new T.BoxGeometry(9,.2,4.4),dark,0,.1,0));return g};
+ const col=h=>new T.Color(h),lerp=(a,b,t)=>col(a).lerp(col(b),t);
+ {const g=mkv("fall"),tw=mesh(new T.BoxGeometry(.5,1,.5),steel,-.6,.7,0),ball=mesh(new T.SphereGeometry(.3,24,18),M(0xe0a030,{metalness:.5}),.1,3,0);g.add(tw,ball);
+  let H=3,per=2,t=0;A.fall={set(r){H=1+4*r;per=.8+2.2*r;tw.scale.y=H;tw.position.y=.2+H/2},tick(s,dt){t=(t+dt)%(per+.6);const u=Math.min(1,t/per);ball.position.y=.5+H*(1-u*u)}}}
+ {const g=mkv("slide"),ramp=mesh(new T.BoxGeometry(7,.2,2),M(0x8b6b4a),0,2,0),blk=mesh(new T.BoxGeometry(.8,.6,.8),M(0x4f8bff),0,3,0);ramp.rotation.z=blk.rotation.z=-.4;g.add(ramp,blk);
+  let sp=.3,u=0;A.slide={set(r){sp=.15+r*1.6},tick(s,dt){u=(u+dt*sp)%1;const x=-3+6*u;blk.position.set(x,2-x*Math.tan(.4)+.45,0)}}}
+ {const g=mkv("spring"),rings=[];g.add(mesh(new T.BoxGeometry(2.4,.2,1.4),dark,0,6.1,0));
+  for(let i=0;i<14;i++){const m=mesh(new T.TorusGeometry(.35,.05,8,16),steel);m.rotation.x=Math.PI/2;g.add(m);rings.push(m)}
+  const mass=mesh(new T.BoxGeometry(1,.8,1),M(0xc9a227,{metalness:.6}),0,3,0);g.add(mass);let fr=1,am=.6;
+  A.spring={set(r){fr=.6+r*3.4;am=.4+r*1.1},tick(s){const y=3.4+Math.sin(s*fr*5.2)*am;mass.position.y=y;rings.forEach((m,i)=>m.position.y=y+.4+(5.9-y-.4)*i/13)}}}
+ {const g=mkv("wheel"),g1=mesh(new T.CylinderGeometry(1.3,1.3,.5,10),steel,-1.4,2,0),g2=mesh(new T.CylinderGeometry(.9,.9,.5,8),M(0xc9a227,{metalness:.7}),1.1,2,0);g1.rotation.x=g2.rotation.x=Math.PI/2;
+  g.add(g1,g2,mesh(new T.BoxGeometry(.2,2.4,.3),dark,-1.4,1,0),mesh(new T.BoxGeometry(.2,2.4,.3),dark,1.1,1,0));let w=1;
+  A.wheel={set(r){w=.3+r*7},tick(s,dt){g1.rotation.y+=dt*w;g2.rotation.y-=dt*w*1.44}}}
+ {const g=mkv("lever"),bar=new T.Group();bar.position.y=1.6;g.add(bar,mesh(new T.ConeGeometry(.5,1.5,4),steel,0,.85,0));
+  bar.add(mesh(new T.BoxGeometry(7,.2,.8),M(0x8b6b4a)),mesh(new T.BoxGeometry(.9,.9,.9),M(0x4f8bff),-2.8,.55,0),mesh(new T.BoxGeometry(.6,.6,.6),M(0xd14d4d),2.8,.4,0));let tg=0;
+  A.lever={set(r){tg=(r-.5)*.9},tick(s,dt){bar.rotation.z+=(tg-bar.rotation.z)*Math.min(1,dt*4)}}}
+ {const g=mkv("wave"),N=100,pa=new Float32Array(N*3),gm=new T.BufferGeometry();gm.setAttribute("position",new T.BufferAttribute(pa,3));
+  const ln=new T.Line(gm,new T.LineBasicMaterial({color:0x087f69}));ln.frustumCulled=false;const dot=mesh(new T.SphereGeometry(.18,16,12),M(0xe0a030),0,2.2,0);g.add(ln,dot);let am=.8,k=2;
+  A.wave={set(r){am=.3+r*1.3;k=1.5+r*5},tick(s){for(let i=0;i<N;i++){const x=-4+8*i/(N-1);pa.set([x,2.2+am*Math.sin(k*x-s*4),0],i*3)}gm.attributes.position.needsUpdate=true;dot.position.y=2.2+am*Math.sin(-s*4)}}}
+ {const g=mkv("heat"),blk=mesh(new T.BoxGeometry(2,1.2,2),new T.MeshStandardMaterial({color:0x4f8bff,emissive:0x000000,roughness:.4}),0,.8,0);g.add(blk,mesh(new T.CylinderGeometry(1.6,1.6,.2,24),M(0x333333),0,.3,0));
+  const hl=new T.PointLight(0xff7a30,0,6);hl.position.y=2;g.add(hl);const st=[];for(let i=0;i<8;i++){const m=new T.Mesh(new T.SphereGeometry(.1,8,8),new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.5}));m.visible=false;g.add(m);st.push(m)}let rr=0;
+  A.heat={set(r){rr=r;blk.material.color.copy(lerp(0x4f8bff,0xff7a30,Math.min(1,r*1.6)).lerp(col(0xfff3c0),Math.max(0,r-.7)*2));blk.material.emissive.setRGB(r*.5,r*.15,0);hl.intensity=r*2},
+   tick(s,dt){st.forEach((m,i)=>{m.visible=rr>.6;if(m.visible){m.position.y=(m.position.y>3||m.position.y<1.4)?1.4:m.position.y+dt*(.6+i*.08);m.position.x=Math.sin(i*2+s)*.5;m.position.z=Math.cos(i*3+s)*.5}})}}}
+ {const g=mkv("bars"),bar=mesh(new T.BoxGeometry(1.2,1,1.2),M(0x3bb58f),0,.7,0),ring=mesh(new T.TorusGeometry(.9,.06,8,32),M(0xe0a030,{metalness:.6}),0,1,0);ring.rotation.x=Math.PI/2;g.add(bar,ring);
+  for(let i=0;i<5;i++)g.add(mesh(new T.BoxGeometry(.6,.05,.1),steel,1.5,.4+i*.9,0));
+  A.bars={set(r){const h=.2+r*4;bar.scale.y=h;bar.position.y=.2+h/2;ring.position.y=.2+h+.3;bar.material.color.copy(lerp(0x3bb58f,0xd14d4d,r))},tick(){}}}
+ {const g=mkv("plant"),stem=mesh(new T.CylinderGeometry(.08,.1,1,10),M(0x3f8f3a),0,1,0),lv=[];g.add(mesh(new T.CylinderGeometry(.8,.6,.8,20),M(0xb8643c),0,.6,0),stem);
+  for(let i=0;i<6;i++){const l=mesh(new T.SphereGeometry(.5,12,8),M(0x4caf50),0,1,0);g.add(l);lv.push(l)}
+  A.plant={set(r){const h=.3+r*3.2,sc=.3+r*.9;stem.scale.y=h;stem.position.y=1+h/2;lv.forEach((l,i)=>{l.position.set(Math.cos(i*2.1)*.5*sc,1+h*(i+1)/6,Math.sin(i*2.1)*.5*sc);l.rotation.y=-i*2.1;l.scale.set(sc,.15,.5*sc)})},tick(s){stem.rotation.z=Math.sin(s)*.04}}}
+ {const g=mkv("orbit"),sun=mesh(new T.SphereGeometry(.7,24,18),new T.MeshBasicMaterial({color:0xffc94d}),0,2,0),pl=mesh(new T.SphereGeometry(.28,16,12),M(0x4f8bff),2,2,0),ring=new T.Mesh(new T.TorusGeometry(1,.012,6,80),new T.MeshBasicMaterial({color:0x88aaaa}));
+  ring.rotation.x=Math.PI/2;ring.position.y=2;g.add(sun,pl,ring);let R=2,a=0;
+  A.orbit={set(r){R=1.2+r*3.3;ring.scale.set(R,R,1)},tick(s,dt){a+=dt*3.2/Math.pow(R,1.5);pl.position.set(Math.cos(a)*R,2,Math.sin(a)*R)}}}
+ {const g=mkv("beam"),seg=[],N=12;g.add(mesh(new T.BoxGeometry(.6,1.6,1.2),steel,-3.3,.9,0),mesh(new T.BoxGeometry(.6,1.6,1.2),steel,3.3,.9,0));
+  for(let i=0;i<N;i++){const m=mesh(new T.BoxGeometry(6.6/N+.02,.4,.8),M(0xb08850),0,2,0);g.add(m);seg.push(m)}
+  const load=mesh(new T.BoxGeometry(1,.7,1),M(0x607d8b,{metalness:.5}),0,3,0);g.add(load);
+  A.beam={set(r){const d=r*1.5;seg.forEach((m,i)=>{const x=-3.3+6.6*(i+.5)/N,u=x/3.3;m.position.set(x,2.1-d*(1-u*u),0);m.rotation.z=d*2*u/3.3;m.material.color.copy(lerp(0xb08850,0xd14d4d,Math.max(0,(r-.7)/.3)))});load.position.y=2.9-d},tick(){}}}
+ {const g=mkv("tank");g.add(mesh(new T.CylinderGeometry(1.4,1.4,3.4,32,1,true),G(),0,1.9,0));
+  const lq=mesh(new T.CylinderGeometry(1.32,1.32,1,32),M(0x4d9fd6,{transparent:true,opacity:.75}),0,1,0);lq.castShadow=false;g.add(lq);const bb=[];
+  for(let i=0;i<10;i++){const m=new T.Mesh(new T.SphereGeometry(.06,8,8),new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.7}));g.add(m);bb.push(m)}let h=1,rr=0;
+  A.tank={set(r){rr=r;h=.3+r*2.9;lq.scale.y=h;lq.position.y=.2+h/2;lq.material.color.copy(lerp(0x72b1dc,0x43a047,r))},
+   tick(s,dt){bb.forEach((m,i)=>{m.visible=rr>.3;m.position.y+=dt*(.5+i*.07);if(m.position.y>.2+h||m.position.y<.3)m.position.set(Math.sin(i*5)*.9,.3,Math.cos(i*5)*.9)})}}}
+ {const g=mkv("circ"),wires=[];[[0,3.4,6,.12,.12],[0,.7,6,.12,.12],[-3,2,.12,2.8,.12],[3,2,.12,2.8,.12]].forEach(([x,y,w,h,d])=>{const m=mesh(new T.BoxGeometry(w,h,d),M(0xb87333,{metalness:.8,roughness:.35}),x,y,0);g.add(m);wires.push(m)});
+  const bm=new T.MeshStandardMaterial({color:0xfff3c0,emissive:0xffc94d,emissiveIntensity:0,transparent:true,opacity:.8}),bl=new T.PointLight(0xffc94d,0,8);bl.position.set(0,3.4,1);
+  g.add(mesh(new T.SphereGeometry(.55,24,18),bm,0,3.4,0),bl,mesh(new T.BoxGeometry(1.4,.7,.7),M(0x2a3b36),0,.7,0),mesh(new T.BoxGeometry(1.4,.25,.72),M(0xf2c14e),0,.95,0));
+  A.circ={set(r){bm.emissiveIntensity=r*2.4;bl.intensity=r*2;const t=Math.pow(r,3);wires.forEach(w=>w.material.color.setRGB(.72+.28*t,.45-.3*t,.2-.15*t))},tick(){}}}
+ E.tick.push((s,dt)=>{const v=labs[labKind],k=v&&v.viz;if(k&&A[k])A[k].tick(s,dt)});
+ GEN_SPECS.forEach((sp,i)=>{MORE["g"+i]=vals=>{
+  let o;try{o=sp[5](vals)}catch(e){return"Hisoblashda xato"}
+  A[sp[3]].set(Math.max(0,Math.min(1,+o[1]||0)));
+  const hz=o[2]&&HZ[o[2]];
+  if(hz){INFO[o[2]]=hz;if(!fired.has(o[2])){burst(0,2,0,30,0xffd24d,.06,4,9,.8);E.shake=.4;flashL.position.set(0,3,2);flashL.intensity=15}incident(o[2],hz.ic,hz.t,hz.cause,"")}
+  return o[0]}});
+ return VG;
+}
+function moreLabs(C){
+ const {E,T,S,M,G,mesh,steel,dark,burst,incident,fired,flashL,LAB:L}=C;
+ const gr={},MORE={},GO={},tk=[],rs=[];
+ const mk=id=>{const g=new T.Group();g.visible=false;S.add(g);gr[id]=g;return g};
+ const live=t=>{const el=$("#labHeat");if(el)el.textContent=t};
+ const col=h=>new T.Color(h);
+
+ /* 1. Matematik mayatnik */
+ {const g=mk("mayatnik");
+  g.add(mesh(new T.BoxGeometry(3,.2,2),dark,-.6,.1,0),mesh(new T.CylinderGeometry(.08,.08,6.2,12),steel,-1.2,3.1,0));
+  const arm=mesh(new T.CylinderGeometry(.06,.06,1.4,10),steel,-.5,6.2,0);arm.rotation.z=Math.PI/2;g.add(arm);
+  const pv=new T.Group();pv.position.set(0,6.2,0);g.add(pv);
+  const str=mesh(new T.CylinderGeometry(.015,.015,1,6),M(0x222222),0,-.5,0),bob=mesh(new T.SphereGeometry(.32,24,18),M(0xc9a227,{metalness:.7,roughness:.25}),0,-1,0);pv.add(str,bob);
+  let th=.5,w=0,Lm=1,Tm=0,t0=null;
+  MORE.mayatnik=v=>{Lm=v.len/100;th=v.ang*Math.PI/180;w=0;t0=null;Tm=0;const u=Lm*2.4;str.scale.y=u;str.position.y=-u/2;bob.position.y=-u;const P0=2*Math.PI*Math.sqrt(Lm/9.81);
+   return `Davr T = 2π√(L/g) = <b>${P0.toFixed(2)} s</b> (L = ${Lm.toFixed(2)} m), chastota f = <b>${(1/P0).toFixed(2)} Hz</b>.<br>Massa davrga ta’sir qilmaydi; burchak katta bo‘lsa, davr biroz ortadi.`};
+  tk.push(["mayatnik",(s,dt)=>{w+=-9.81/Lm*Math.sin(th)*dt;const p=th;th+=w*dt;pv.rotation.z=th;if(p<0&&th>=0){if(t0!=null)Tm=s-t0;t0=s}live((Tm?"O‘lchangan davr: "+Tm.toFixed(2)+" s · ":"")+"burchak "+Math.round(th*57.3)+"°")}]);
+ }
+
+ /* 2. Arximed qonuni */
+ {const g=mk("arximed");
+  g.add(mesh(new T.BoxGeometry(4.2,.12,2.6),dark,0,.06,0));
+  const tank=mesh(new T.BoxGeometry(4,3.2,2.4),G(),0,1.72,0);tank.castShadow=false;g.add(tank);
+  const water=mesh(new T.BoxGeometry(3.92,2.2,2.32),M(0x4d9fd6,{transparent:true,opacity:.4}),0,1.22,0);water.castShadow=false;g.add(water);
+  const cube=mesh(new T.BoxGeometry(1,1,1),M(0xb08850),0,1.3,0);g.add(cube);
+  let tgt=1.3,mode="";
+  MORE.arximed=v=>{const d=v.dens,V=v.vol,side=.6+(V-50)/450*.9,frac=d/1000;cube.scale.setScalar(side);
+   mode=d<970?"float":d>1030?"sink":"neutral";
+   const low=.12+side/2+.02;tgt=mode==="float"?Math.max(low,2.32-side*frac+side/2):mode==="sink"?low:1.3;
+   cube.material.color.copy(col(0xb08850).lerp(col(0x8a97a0),Math.max(0,Math.min(1,(d-300)/2500))));
+   const m=d*V*1e-6,W=m*9.81,Fmax=1000*V*1e-6*9.81;
+   return `Massa m = ρ·V = <b>${(m*1000).toFixed(0)} g</b>, og‘irlik W = <b>${W.toFixed(2)} N</b>, to‘liq botganda Arximed kuchi F = ρ<sub>suv</sub>·g·V = <b>${Fmax.toFixed(2)} N</b>.<br>Natija: <b>${mode==="float"?"suzadi (botgan qismi "+Math.round(frac*100)+"%)":mode==="sink"?"cho‘kadi (F < W)":"muallaq turadi (ρ ≈ ρ_suv)"}</b>`};
+  tk.push(["arximed",(s,dt)=>{cube.position.y+=(tgt-cube.position.y)*Math.min(1,dt*3)+(mode==="float"?Math.sin(s*2)*.002:0);cube.rotation.y+=dt*.2}]);
+ }
+
+ /* 3. Gorizontga burchak ostida otish */
+ {const g=mk("otish"),k=.15,x0=-9,TD=40,h0=.6/k;
+  g.add(mesh(new T.BoxGeometry(1.4,.5,1.4),dark,x0,.25,0));
+  const barrel=new T.Group();barrel.position.set(x0,.6,0);g.add(barrel);
+  const tube=mesh(new T.CylinderGeometry(.25,.32,1.8,20),steel,.9,0,0);tube.rotation.z=-Math.PI/2;barrel.add(tube);
+  const tx=x0+TD*k;g.add(mesh(new T.CylinderGeometry(.5,.5,.06,28),M(0xe53935),tx,.04,0),mesh(new T.CylinderGeometry(.3,.3,.08,28),M(0xffffff),tx,.06,0),mesh(new T.CylinderGeometry(.1,.1,.1,20),M(0xe53935),tx,.08,0));
+  const ball=mesh(new T.SphereGeometry(.14,16,12),M(0x222222,{metalness:.6}),x0,.6,0);ball.visible=false;g.add(ball);
+  const trail=[];for(let i=0;i<80;i++){const m=new T.Mesh(new T.SphereGeometry(.05,6,6),new T.MeshBasicMaterial({color:0xe0a030}));m.visible=false;g.add(m);trail.push(m)}
+  const NP=41,pa=new Float32Array(NP*3),pgm=new T.BufferGeometry();pgm.setAttribute("position",new T.BufferAttribute(pa,3));
+  const pl=new T.Line(pgm,new T.LineBasicMaterial({color:0x087f69,transparent:true,opacity:.6}));pl.frustumCulled=false;g.add(pl);
+  let vx=10,vy=10,Tf=1,st=null,ti=0;
+  MORE.otish=v=>{const a=v.alpha*Math.PI/180;barrel.rotation.z=a;vx=v.v0*Math.cos(a);vy=v.v0*Math.sin(a);Tf=(vy+Math.sqrt(vy*vy+2*9.81*h0))/9.81;
+   for(let i=0;i<NP;i++){const t=Tf*i/(NP-1);pa.set([x0+vx*t*k,Math.max(0,.6+(vy*t-4.905*t*t)*k),0],i*3)}pgm.attributes.position.needsUpdate=true;
+   const R=vx*Tf,H=h0+vy*vy/19.62;
+   return `Uchish uzoqligi R = <b>${R.toFixed(1)} m</b>, maksimal balandlik H = <b>${H.toFixed(1)} m</b>, uchish vaqti t = <b>${Tf.toFixed(2)} s</b> (qurol balandligi ${h0.toFixed(0)} m).<br>🎯 Nishon ${TD} m masofada (±${(.5/k).toFixed(1)} m). «Tajribani bajarish» — otish. Eng uzoq masofa 45° da bo‘ladi.`};
+  GO.otish=()=>{st={t:0,tr:0};ti=0;trail.forEach(m=>m.visible=false);ball.visible=true};
+  tk.push(["otish",(s,dt)=>{if(!st)return;st.t+=dt;const t=st.t,x=x0+vx*t*k,y=.6+(vy*t-4.905*t*t)*k;ball.position.set(x,Math.max(y,.14),0);
+   st.tr+=dt;if(st.tr>.08){st.tr=0;const m=trail[ti++%trail.length];m.position.copy(ball.position);m.visible=true}
+   live("t = "+t.toFixed(1)+" s");
+   if(y<=0&&t>.1){const R=(x-x0)/k,d=Math.abs(R-TD);st=null;live("Tushish nuqtasi: "+R.toFixed(1)+" m");toast(d<=.5/k?"🎯 Nishonga tegdi!":"Nishondan "+d.toFixed(0)+" m "+(R<TD?"yaqinda":"uzoqda")+" tushdi")}}]);
+ }
+
+ /* 4. Gaz qonunlari */
+ {const g=mk("gaz"),R0=1.3,N=80;
+  const base=mesh(new T.CylinderGeometry(1.6,1.6,.2,32),M(0x333333,{emissive:0x000000}),0,.1,0);
+  const cyl=mesh(new T.CylinderGeometry(R0,R0,5,32,1,true),G(),0,2.7,0);cyl.castShadow=false;
+  const pg=new T.Group();pg.add(mesh(new T.CylinderGeometry(R0-.04,R0-.04,.2,32),steel),mesh(new T.CylinderGeometry(.08,.08,2.2,10),steel,0,1.2,0));
+  const gb=mesh(new T.BoxGeometry(.4,1,.4),M(0x3bb58f),3,.7,0);
+  g.add(base,cyl,pg,mesh(new T.BoxGeometry(.8,.2,.8),dark,3,.1,0),gb);
+  const pos=new Float32Array(N*3),vel=[];
+  for(let i=0;i<N;i++){const a=Math.random()*6.283,r=Math.sqrt(Math.random())*(R0-.2);pos.set([Math.cos(a)*r,.4+Math.random()*1.5,Math.sin(a)*r],i*3);vel.push(new T.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize())}
+  const pgeo=new T.BufferGeometry();pgeo.setAttribute("position",new T.BufferAttribute(pos,3));
+  const pts=new T.Points(pgeo,new T.PointsMaterial({color:0xffd24d,size:.14}));pts.frustumCulled=false;g.add(pts);
+  let Tk=300,top=2.3,P=0,over=0,broken=false,fly=0;
+  const bang=()=>{broken=true;fly=0;cyl.visible=false;pts.visible=false;burst(0,2.4,0,36,0,.2,4.5,9,0,true);burst(0,2,0,24,0xffffff,.1,3,-1,2);E.shake=.7;flashL.position.set(0,3,2);flashL.intensity=35;
+   incident("gas","💥","Gaz idishi portladi","Bosim "+Math.round(P)+" kPa ga yetib, idish chidamliligi (600 kPa) dan oshdi.","")};
+  MORE.gaz=v=>{Tk=v.gT;const V=v.gV;P=.5*8.314*Tk/V;top=V*.42+.2;if(!broken)pg.position.y=top+.1;
+   gb.scale.y=Math.max(.05,Math.min(2.2,P/300));gb.position.y=.2+gb.scale.y*.5;gb.material.color.setHex(P>=600?0xd14d4d:P>=450?0xe0a030:0x3bb58f);
+   const h=Math.min(1,(Tk-250)/350);base.material.emissive.setRGB(h*.8,h*.2,0);
+   return `P = nRT / V = 0.5 · 8.314 · ${Tk} / ${V} = <b>${P.toFixed(0)} kPa</b> (n = 0.5 mol). Harorat oshsa yoki hajm kamaysa, bosim ortadi.`+(P>=600?"<br>⛔ Idish chidamlilik chegarasi (600 kPa) oshdi!":P>=450?"<br>⚠ Bosim xavfli darajaga yaqinlashmoqda.":"")};
+  tk.push(["gaz",(s,dt)=>{
+   if(broken){if(pg.position.y<14){fly+=dt*20;pg.position.y+=fly*dt}return}
+   const sp=Math.sqrt(Tk/300)*2.4;
+   for(let i=0;i<N;i++){let x=pos[i*3],y=pos[i*3+1],z=pos[i*3+2];const v=vel[i];x+=v.x*sp*dt;y+=v.y*sp*dt;z+=v.z*sp*dt;
+    if(y<.3){y=.3;v.y=Math.abs(v.y)}if(y>top-.1){y=top-.1;v.y=-Math.abs(v.y)}
+    if(Math.hypot(x,z)>R0-.15){v.x=-v.x;v.z=-v.z;x*=.9;z*=.9}
+    pos[i*3]=x;pos[i*3+1]=y;pos[i*3+2]=z}
+   pgeo.attributes.position.needsUpdate=true;
+   over=P>600?over+dt:Math.max(0,over-dt);
+   live("Bosim: "+Math.round(P)+" kPa"+(over>0?" · chegaradan oshdi "+over.toFixed(1)+" s":""));
+   if(over>2.5)bang()}]);
+  rs.push(()=>{broken=false;over=0;fly=0;cyl.visible=true;pts.visible=true;pg.position.y=top+.1});
+ }
+
+ /* 5. Soda va sirka (ko'pik) */
+ {const g=mk("vulqon"),CAP=2.9/250;
+  const bp=[[0,0],[.9,0],[.95,.1],[.95,2.9],[.5,3.4],[.35,3.6],[.35,4.3],[.43,4.4]].map(p=>new T.Vector2(p[0],p[1]));
+  g.add(mesh(new T.LatheGeometry(bp,40),G()));
+  const liq=mesh(new T.CylinderGeometry(.9,.93,1,32),M(0xe8e0b8,{transparent:true,opacity:.75}),0,.5,0);liq.castShadow=false;g.add(liq);
+  const foam=mesh(new T.CylinderGeometry(.92,.92,1,32),M(0xffffff,{transparent:true,opacity:.92,roughness:1}),0,1,0);foam.castShadow=false;foam.scale.y=.001;g.add(foam);
+  const pud=mesh(new T.CylinderGeometry(1,1,.03,40),M(0xffffff,{transparent:true,opacity:.85}),0,.02,0);pud.visible=false;g.add(pud);
+  let liqH=1,tgtH=0,K=0,run=false,spilled=false,pk=0,sp=0;
+  MORE.vulqon=v=>{const n1=v.soda/84,n2=v.acid*.05/60.05,n=Math.min(n1,n2),gas=n*24.5,foamMl=gas*1000*.15,total=v.acid+foamMl;
+   liqH=v.acid*CAP;tgtH=foamMl*CAP;liq.scale.y=Math.max(.01,liqH);liq.position.y=.1+liqH/2;
+   return `NaHCO₃ + CH₃COOH → CH₃COONa + H₂O + CO₂↑. Soda ${n1.toFixed(3)} mol, kislota ${n2.toFixed(3)} mol → CO₂ ≈ <b>${gas.toFixed(2)} L</b>, ko‘pik ≈ <b>${Math.round(foamMl)} ml</b>.<br>Idish sig‘imi 250 ml, kerak: <b>${Math.round(total)} ml</b> ${total>250?"⛔ ko‘pik toshadi!":total>200?"⚠ chegarada":"✔ sig‘adi"}. «Tajribani bajarish»ni bosing.`};
+  GO.vulqon=()=>{if(run&&K<1)return;run=true;K=0;spilled=false;sp=0;pud.visible=false;pud.scale.set(.2,1,.2);fired.delete("foam")};
+  tk.push(["vulqon",(s,dt)=>{if(!run)return;K=Math.min(1,K+dt/3);
+   const room=Math.max(.001,2.9-liqH),h=Math.min(tgtH*K,room);foam.scale.y=Math.max(.001,h);foam.position.y=.1+liqH+h/2;
+   if(tgtH*K>=room&&!spilled){spilled=true;burst(0,4.4,0,60,0xffffff,.1,2.5,6,1.8);E.shake=.25;pud.visible=true;
+    incident("foam","🫧","Ko‘pik idishdan toshib ketdi","Reaksiyada ajralgan CO₂ ko‘pik hosil qilib, 250 ml li idish sig‘imidan oshib ketdi.","")}
+   if(spilled){sp+=dt;pud.scale.x=pud.scale.z=Math.min(2.4,.2+sp*.7);if(K<1&&Math.random()<dt*14)burst(0,4.4,0,3,0xffffff,.09,1.6,6,1.4)}
+   if(K>=1&&!spilled)live("Reaksiya tugadi · ko‘pik balandligi "+Math.round(h/CAP)+" ml")}]);
+  rs.push(()=>{run=false;K=0;spilled=false;pud.visible=false;foam.scale.y=.001});
+ }
+
+ /* 6. pH va indikator */
+ {const g=mk("ph");
+  g.add(mesh(new T.CylinderGeometry(1.5,1.5,3,40,1,true),G(),0,1.5,0),mesh(new T.CylinderGeometry(1.5,1.5,.05,40),G(),0,.03,0));
+  const liq=mesh(new T.CylinderGeometry(1.42,1.42,2.2,40),M(0x43a047,{transparent:true,opacity:.8,roughness:.2}),0,1.15,0);liq.castShadow=false;g.add(liq);
+  const stops=[[0,0xe53935],[3,0xf57c00],[5,0xfdd835],[7,0x43a047],[9,0x26a69a],[11,0x3949ab],[14,0x6a1b9a]];
+  const pc=p=>{for(let i=1;i<stops.length;i++)if(p<=stops[i][0]){const a=stops[i-1],b=stops[i];return col(a[1]).lerp(col(b[1]),(p-a[0])/(b[0]-a[0]))}return col(0x6a1b9a)};
+  for(let i=0;i<=14;i++)g.add(mesh(new T.BoxGeometry(.55,.4,.4),M(pc(i).getHex()),-4.2+i*.6,.2,2.4));
+  const mark=mesh(new T.ConeGeometry(.2,.45,12),M(0x172033),0,.85,2.4);mark.rotation.x=Math.PI;g.add(mark);
+  const pa=mesh(new T.BoxGeometry(.16,2.4,.03),M(0xe53935),.6,1.6,.4),pb=mesh(new T.BoxGeometry(.16,2.4,.03),M(0x3949ab),-.6,1.6,.4);pa.rotation.z=-.15;pb.rotation.z=.15;g.add(pa,pb);
+  const EX=[[0,"akkumulyator kislotasi"],[1.5,"oshqozon shirasi"],[2.5,"limon sharbati"],[4,"pomidor"],[5,"qora qahva"],[7,"toza suv"],[8.3,"ichimlik sodasi"],[10.5,"sovun eritmasi"],[12.5,"maishiy ammiak"],[13.5,"kanalizatsiya tozalagich"]];
+  MORE.ph=v=>{const p=v.phv;liq.material.color.copy(pc(p));mark.position.x=-4.2+p*.6;
+   pa.material.color.setHex(p>8?0x3949ab:0xe53935);pb.material.color.setHex(p<6?0xe53935:0x3949ab);
+   const ex=EX.reduce((a,b)=>Math.abs(b[0]-p)<Math.abs(a[0]-p)?b:a);
+   return `pH = <b>${p}</b> — ${p<6.5?"kislotali":p>7.5?"ishqoriy":"neytral"} muhit. [H⁺] = 10<sup>−${p}</sup> = <b>${(Math.pow(10,-p)).toExponential(1)} mol/L</b>.<br>Qizil lakmus: <b>${p>8?"ko‘kaydi":"qizil"}</b>, ko‘k lakmus: <b>${p<6?"qizaradi":"ko‘k"}</b>. Eng yaqin misol: ${ex[1]}.`+(p<=2||p>=12?"<br>⚠ Korroziv eritma: ko‘zoynak va qo‘lqopsiz tegmang!":"")};
+ }
+
+ const VG=genLabs(C,MORE,fired);
+ E.tick.push((s,dt)=>{tk.forEach(([k,f])=>{if(labKind===k)f(s,dt)})});
+ const oldShow=L.show;
+ L.show=k=>{oldShow(k);for(const id in gr)gr[id].visible=id===k;const vz=labs[k]&&labs[k].viz;for(const id in VG)VG[id].visible=id===vz};
+ L.more=MORE;L.go=GO;L.moreReset=()=>rs.forEach(f=>f());
+}
+function renderLab(kind){
+ labKind=kind;const ex=labs[kind];$("#labTitle").textContent=ex.title;$("#labHeat").textContent="";
+ const on=t=>LAB&&LAB.parts[t]&&LAB.parts[t].visible?" active":"";
+ const tools=kind==="kimyo"?`<div class="equipment-row"><b>Jihozlar:</b><button type="button" class="equipment-btn${on("flask")}" data-tool="flask">Kolba</button><button type="button" class="equipment-btn${on("testtube")}" data-tool="testtube">Probirkalar</button><button type="button" class="equipment-btn${on("burner")}" data-tool="burner">Gorilka</button><button type="button" class="equipment-btn${on("stand")}" data-tool="stand">Shtativ</button><button type="button" class="equipment-btn${on("pipette")}" data-tool="pipette">Pipetka</button><button type="button" class="equipment-btn" data-tool="cork">Probka: yo‘q</button><button type="button" class="equipment-btn" data-tool="spirit">Spirt idishi</button><button type="button" class="equipment-btn" data-tool="ext">🧯 O‘chirgich</button><button type="button" class="equipment-btn" data-tool="burnoff">Issiqlik: o‘chiq</button></div>`:"";
+ $("#labControls").innerHTML=tools+ex.controls.map(c=>`<div class="control"><label for="${c[0]}"><span>${c[1]}</span><b id="${c[0]}Val">${c[4]} ${c[5]}</b></label><input id="${c[0]}" type="range" min="${c[2]}" max="${c[3]}" step="${c[6]||((c[3]-c[2])<=20?0.1:1)}" value="${c[4]}"></div>`).join("")+`<div class="control"><button type="button" class="btn primary" style="width:100%" id="labRun">Tajribani bajarish</button></div>`;
+ $$("#labControls input").forEach(i=>i.oninput=()=>labUpdate());
+ $("#labRun").onclick=()=>{labUpdate();if(LAB&&kind==="kimyo")LAB.run();else if(LAB&&LAB.go&&LAB.go[kind])LAB.go[kind]();{const n=store.get("edulab_notes");n.unshift({title:"Lab: "+ex.title,text:$("#labResult").textContent,date:new Date().toLocaleDateString("uz-UZ")});store.set("edulab_notes",n.slice(0,100));toast("Natija daftarchaga saqlandi")}};
+ if(LAB)LAB.show(kind);
+ if(kind==="kimyo")$$(".equipment-btn").forEach(b=>b.onclick=()=>{
+  if(!LAB)return;
+  if(b.dataset.tool==="ext"){LAB.extinguish();return}
+  if(b.dataset.tool==="cork"){if(!LAB.parts.burner.visible)return toast("Avval gorilkani qo‘shing");const o=!b.classList.contains("active");b.classList.toggle("active",o);b.textContent=o?"Probka: bor":"Probka: yo‘q";LAB.stopper(o);return}
+  if(b.dataset.tool==="burnoff"){
+   if(!LAB.parts.burner.visible)return toast("Avval gorilkani qo‘shing");
+   const o=!b.classList.contains("active");b.classList.toggle("active",o);b.textContent=o?"Issiqlik: yoniq":"Issiqlik: o‘chiq";LAB.flame(o);return;
+  }
+  const p=LAB.parts[b.dataset.tool];p.visible=!p.visible;b.classList.toggle("active",p.visible);
+ });
+ labUpdate();
+}
+function labUpdate(){
+ const val=id=>+$("#"+id).value,set=(id,t)=>$("#"+id+"Val").textContent=t,out=$("#labResult");
+ if(labs[labKind].more){
+  const vals={};labs[labKind].controls.forEach(c=>{vals[c[0]]=val(c[0]);set(c[0],vals[c[0]]+" "+c[5])});
+  out.innerHTML=LAB&&LAB.more&&LAB.more[labKind]?LAB.more[labKind](vals):"3D ko‘rinish mavjud emas (WebGL kerak).";return;
+ }
+ if(labKind==="kimyo"){
+  const v=val("volume"),m=val("mol");set("volume",v+" ml");set("mol",m.toFixed(2)+" M");
+  const diff=0.025*0.1-v/1000*m,V=(25+v)/1000;
+  const pH=Math.abs(diff)<1e-9?7:diff>0?-Math.log10(diff/V):14+Math.log10(-diff/V);
+  if(LAB)LAB.chem(v,m,pH);
+  out.innerHTML=`25 ml 0.1 M HCl ga ${v} ml NaOH qo‘shildi. pH ≈ <b>${pH.toFixed(2)}</b> ${pH>=8.2?"(fenolftalein pushti)":pH<=6.8?"(kislotali)":"(neytral nuqtaga yaqin)"}`+(pH>=12.5?"<br>⚠ Kuchli ishqor (pH ≥ 12.5): teri va ko‘zni kuydiradi — himoya vositasisiz ishlamang.":v>2.5/m+1?`<br>⚠ Ekvivalent nuqtadan (≈ ${(2.5/m).toFixed(1)} ml) o‘tib ketdingiz. Oxirida bir tomchilab qo‘shing.`:"")+(25+v>70?"<br>⛔ Kolba sig‘imi (70 ml) oshdi!":"");
+ }else if(labKind==="fizika"){
+  const d=val("distance"),f=val("focus");set("distance",d+" sm");set("focus",f+" sm");
+  const r=LAB?LAB.phys(d,f):{inf:Math.abs(d-f)<.01,v:d*f/(d-f),m:-f/(d-f)};
+  out.innerHTML=r.inf?"Obyekt fokusda: tasvir cheksizlikda hosil bo‘ladi.":`Tasvir masofasi: <b>${r.v.toFixed(1)} sm</b> (${r.v>0?"haqiqiy, teskari":"mavhum, to‘g‘ri"}), kattalashtirish: <b>${Math.abs(r.m).toFixed(2)}×</b>`;
+ }else if(labKind==="elektr"){
+  const U=val("volt"),R=val("ohm");set("volt",U+" V");set("ohm",R+" Ω");
+  const r=LAB?LAB.elec(U,R):{I:U/R,P:U*U/R};
+  out.innerHTML=`Om qonuni: I = U / R = ${U} / ${R} = <b>${r.I.toFixed(2)} A</b>, quvvat P = <b>${r.P.toFixed(1)} Vt</b>`+(r.I>=3.5?"<br>⛔ Xavfli tok! Simlar qizimoqda — kuchlanishni kamaytiring yoki qarshilikni oshiring.":r.I>=1.5?"<br>⚠ Tok kuchi yuqori, simlar iliy bo‘lishi mumkin.":"");
+ }else{
+  const s=val("sugar"),t=val("time");set("sugar",s+" %");set("time",t+" min");
+  const dm=(10-s)*0.3*(1-Math.exp(-t/20));if(LAB)LAB.bio(s,t,dm);
+  out.innerHTML=`Hujayra massasi o‘zgarishi (soddalashtirilgan model): <b>${dm>=0?"+":""}${dm.toFixed(1)} %</b> — ${dm>0.05?"suv hujayraga kiradi":dm<-0.05?"suv hujayradan chiqadi":"muvozanat"}`+(dm<=-4?"<br>⚠ Plazmoliz: hujayra suvsizlanib, sitoplazma devordan ajralmoqda.":"")+(dm>=2.5?"<br>⛔ Hujayra yorilish xavfi (lizis)!":"");
+ }
+}
+
+/* ---------- Davriy jadval ---------- */
+function periodicPage(){
+ let cells="";
+ for(let n=1;n<=118;n++){
+  const p=elPos(n),c=catOf(n)[0],m=massList[n-1];
+  cells+=`<button type="button" class="element ${c}" style="grid-column:${p[0]};grid-row:${p[1]}" data-el="${n}" title="${esc(names[n-1])}"><span class="num">${n}</span><b>${symbols[n-1]}</b><small>${m.toFixed(2)}</small></button>`;
+ }
+ return head("Interaktiv Mendeleyev jadvali","Elementni tanlang — atom xossalari ko‘rinadi")+`<div class="panel"><div class="field"><input id="elSearch" placeholder="Element nomi yoki belgisi bo‘yicha izlash…" aria-label="Izlash"></div><div class="periodic" id="periodic">${cells}</div></div><div class="panel element-detail"><div class="atomwrap"><div id="elDetail"></div><div id="atom3d" class="atomhost"></div></div></div>`;
+}
+let atomEng=null,atomG=null;
+function atomInit(){
+ atomEng=make3D($("#atom3d"),{auto:.3,theta:.6,phi:1.15,radius:11,look:[0,0,0],bg:0x0f2a24});
+ if(!atomEng)return;lights(atomEng.scene,atomEng.T,false);
+ atomEng.tick.push((s,dt)=>{if(atomG)atomG.userData.e.forEach(e=>{e.a+=dt*e.sp;const x=Math.cos(e.a)*e.r,z=Math.sin(e.a)*e.r;e.m.position.set(x,z*Math.sin(e.t),z*Math.cos(e.t))})});
+}
+function setAtom(n){
+ if(!atomEng)return;const T=atomEng.T;if(atomG)atomEng.scene.remove(atomG);
+ const g=new T.Group();g.userData.e=[];
+ const nc=Math.min(12,Math.ceil(n/5)+1);
+ for(let i=0;i<nc;i++){const m=new T.Mesh(new T.SphereGeometry(.2,16,16),new T.MeshStandardMaterial({color:i%2?0x4f8bff:0xef5454,roughness:.4}));m.position.set((Math.random()-.5)*.35,(Math.random()-.5)*.35,(Math.random()-.5)*.35);g.add(m)}
+ let rem=n;
+ [2,8,8,18,18,32,32].forEach((cap,i)=>{
+  const c=Math.min(cap,rem);if(c<=0)return;rem-=c;
+  const r=1.1+i*.75,t=i*.5;
+  const ring=new T.Mesh(new T.TorusGeometry(r,.012,6,80),new T.MeshBasicMaterial({color:0x6f9488}));ring.rotation.x=Math.PI/2-t;g.add(ring);
+  for(let j=0;j<c;j++){const m=new T.Mesh(new T.SphereGeometry(.09,10,10),new T.MeshBasicMaterial({color:0x4cc9f0}));g.add(m);g.userData.e.push({m,r,t,a:j/c*6.283,sp:1.4/Math.sqrt(i+1)})}
+ });
+ atomG=g;atomEng.scene.add(g);
+}
+function showElement(n){
+ const p=elPos(n),isLan=n>=57&&n<=71,isAct=n>=89&&n<=103;
+ const period=isLan?6:isAct?7:p[1],group=(isLan||isAct)?"f-blok":p[0],block=(isLan||isAct)?"f":(group<=2||n===2)?"s":group<=12?"d":"p";
+ $("#elDetail").innerHTML=`<h2>${esc(names[n-1])} — ${symbols[n-1]}</h2><p class="muted" style="margin-top:-6px">${catOf(n)[1]} · 3D atom modeli taxminiy</p><div class="grid2"><div class="atom-stat"><b>${n}</b>Atom raqami</div><div class="atom-stat"><b>${massList[n-1].toFixed(3)}</b>Nisbiy massa</div><div class="atom-stat"><b>${group}</b>Guruh</div><div class="atom-stat"><b>${period} / ${block}</b>Davr / Blok</div></div>`;
+ setAtom(n);
+}
+function bindPeriodic(){atomInit();
+ $("#elSearch").oninput=e=>{
+  const q=e.target.value.trim().toLowerCase();
+  $$(".element").forEach(b=>{
+   const n=+b.dataset.el;
+   b.style.opacity=(!q||symbols[n-1].toLowerCase().includes(q)||names[n-1].toLowerCase().includes(q)||String(n)===q)?"":"0.18";
+  });
+ };
+ $$(".element").forEach(b=>b.onclick=()=>showElement(+b.dataset.el));
+ showElement(1);
+}
+
+/* ---------- Molekula ---------- */
+const molecules={
+ H2O:{a:[["O",0,0,0],["H",-70,-35,0],["H",70,-35,0]],b:[[0,1],[0,2]]},
+ CH4:{a:[["C",0,0,0],["H",0,-75,0],["H",70,30,45],["H",-70,30,45],["H",0,30,-75]],b:[[0,1],[0,2],[0,3],[0,4]]},
+ CO2:{a:[["C",0,0,0],["O",-90,0,0],["O",90,0,0]],b:[[0,1],[0,2]]},
+ NH3:{a:[["N",0,0,0],["H",0,-70,0],["H",62,35,30],["H",-62,35,30]],b:[[0,1],[0,2],[0,3]]},
+ C2H5OH:{a:[["C",-80,0,0],["C",0,0,0],["O",80,0,0],["H",118,-40,0],["H",-120,-45,0],["H",-110,35,45],["H",-110,35,-45],["H",0,55,50],["H",0,55,-50]],b:[[0,1],[1,2],[2,3],[0,4],[0,5],[0,6],[1,7],[1,8]]}
+};
+let molName="H2O",molEng=null,molGroup=null;
+const CPK={H:[0xe8eef5,.32],C:[0x4b5563,.55],O:[0xef4444,.5],N:[0x4f6bff,.5]};
+function moleculePage(){
+ return head("Molekula konstruktori","3D shar-tayoqcha modeli")+`<div class="panel"><div class="molecule-controls"><button type="button" class="chip active" data-mol="H2O">H₂O</button><button type="button" class="chip" data-mol="CH4">CH₄</button><button type="button" class="chip" data-mol="CO2">CO₂</button><button type="button" class="chip" data-mol="NH3">NH₃</button><button type="button" class="chip" data-mol="C2H5OH">C₂H₅OH</button></div><div class="molbox" id="molBox"></div><p class="muted" style="margin:8px 0 0">Aylantirish uchun suring, yaqinlashtirish uchun g‘ildirakni buring.</p></div>`;
+}
+function buildMol(){
+ if(!molEng)return;const T=molEng.T,k=1/55,mol=molecules[molName];
+ if(molGroup)molEng.scene.remove(molGroup);
+ const g=new T.Group(),P=mol.a.map(a=>new T.Vector3(a[1]*k,-a[2]*k,a[3]*k));
+ mol.a.forEach((a,i)=>{const c=CPK[a[0]],m=new T.Mesh(new T.SphereGeometry(c[1],32,24),new T.MeshStandardMaterial({color:c[0],roughness:.3,metalness:.05}));m.position.copy(P[i]);g.add(m)});
+ mol.b.forEach(([i,j])=>{const d=P[j].clone().sub(P[i]),len=d.length(),m=new T.Mesh(new T.CylinderGeometry(.09,.09,len,14),new T.MeshStandardMaterial({color:0xb8c4be,roughness:.4}));m.position.copy(P[i]).add(P[j]).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());g.add(m)});
+ molGroup=g;molEng.scene.add(g);
+}
+function bindMolecule(){
+ molEng=make3D($("#molBox"),{auto:.5,theta:.6,phi:1.2,radius:7,look:[0,0,0],bg:0xe3ece8});
+ if(!molEng)return;lights(molEng.scene,molEng.T,false);buildMol();
+ $$("[data-mol]").forEach(b=>b.onclick=()=>{$$("[data-mol]").forEach(x=>x.classList.remove("active"));b.classList.add("active");molName=b.dataset.mol;buildMol()});
+}
+
+/* ---------- Konvertor ---------- */
+const units={
+ length:["metr|m|1","kilometr|km|1000","santimetr|cm|0.01","millimetr|mm|0.001","dyuym|in|0.0254","milya|mi|1609.344"],
+ mass:["kilogramm|kg|1","gramm|g|0.001","milligramm|mg|0.000001","tonna|t|1000","funt|lb|0.453592"],
+ time:["sekund|s|1","minut|min|60","soat|h|3600","sutka|d|86400","yil|yr|31557600"],
+ area:["kvadrat metr|m²|1","kvadrat kilometr|km²|1000000","gektar|ha|10000","kvadrat santimetr|cm²|0.0001"],
+ speed:["metr/sekund|m/s|1","kilometr/soat|km/h|0.277778","milya/soat|mph|0.44704","tugun|kn|0.514444"],
+ force:["nyuton|N|1","kilogram-kuch|kgf|9.80665","dyna|dyn|0.00001","funt-kuch|lbf|4.44822"]
+};
+function convertPage(){
+ return head("Fizik kattaliklar konvertori","Uzunlik, massa, vaqt, maydon, tezlik va kuch")+`<div class="panel"><div class="grid2"><div class="field"><label for="cat">Kategoriya</label><select id="cat"><option value="length">Uzunlik</option><option value="mass">Massa</option><option value="time">Vaqt</option><option value="area">Maydon</option><option value="speed">Tezlik</option><option value="force">Kuch</option></select></div><div class="field"><label for="cv">Qiymat</label><input id="cv" type="number" value="1" step="any"></div></div>
+<div class="converter-row"><div class="field"><label for="cu1">Qaysi birlikdan</label><select id="cu1"></select></div><button type="button" class="swap" id="swapUnits" aria-label="Almashtirish">⇄</button><div class="field"><label for="cu2">Qaysi birlikka</label><select id="cu2"></select></div></div><div class="result" id="convertResult"></div></div>`;
+}
+function setupConvert(){
+ const opts=units[$("#cat").value].map((x,i)=>{const[n,s]=x.split("|");return`<option value="${i}">${n} (${s})</option>`}).join("");
+ $("#cu1").innerHTML=opts;$("#cu2").innerHTML=opts;$("#cu2").selectedIndex=1;convert();
+}
+function convert(){
+ const u=units[$("#cat").value].map(x=>x.split("|")),v=parseFloat($("#cv").value);
+ const a=u[+$("#cu1").value],b=u[+$("#cu2").value];
+ $("#convertResult").textContent=isNaN(v)?"Son kiriting":(v*+a[2]/+b[2]).toLocaleString("uz-UZ",{maximumFractionDigits:8})+" "+b[1];
+}
+
+/* ---------- Formula, tenglama ---------- */
+function formulaPage(){
+ return head("Aqlli formula kalkulyatori","Molar massa va formulani element bo‘yicha tahlil")+`<div class="panel"><div class="grid2"><div class="field"><label for="formulaInput">Kimyoviy formula</label><input id="formulaInput" value="H2SO4" placeholder="Masalan: NaCl, C6H12O6, Ca(OH)2"></div><div class="field"><label>Yordam</label><div class="btn" style="text-align:center">H₂O · NaOH · Ca(OH)₂</div></div></div><button type="button" class="btn primary" id="calcFormula">Hisoblash</button><div class="result" id="formulaResult"></div></div>`;
+}
+function balancePage(){
+ return head("Kimyoviy tenglamalarni tenglashtirish","Tenglamani reaksiyaning ikkala tomoni sifatida kiriting")+`<div class="panel"><div class="field"><label for="equationInput">Tenglama</label><input id="equationInput" value="H2 + O2 = H2O" placeholder="Fe + O2 = Fe2O3"></div><button type="button" class="btn primary" id="calcBalance">Tenglashtirish</button><div class="result" id="balanceResult"></div></div>`;
+}
+
+/* ---------- Ma'lumotnoma, daftarcha, kabinet, reyting ---------- */
+const refs=[
+["Atom","Atom — materiyaning kimyoviy usulda bo‘linmaydigan eng kichik zarrachasi. Proton, neytron va elektronlardan tashkil topgan."],
+["Molekula","Molekula — o‘zaro bog‘langan bir necha atomdan iborat barqaror zarracha. Masalan: H₂O, CO₂, O₂."],
+["Valentlik","Valentlik — atomning kimyoviy bog‘ hosil qilishda ishtirok etadigan bog‘lanishlari soni."],
+["Mol","Mol — 6.022×10²³ ta zarrachani ifodalovchi xalqaro miqdor birligi."],
+["Erkin tushish","Erkin tushish tezlanishi yer yuzasida g ≈ 9.81 m/s². v = gt; H = gt²/2."],
+["Nyuton qonuni","Ikkinchi qonun: F = ma. Kuch massaning tezlanishga ko‘paytmasiga teng."],
+["Elektr toki","Om qonuni: I = U/R. Quvvat: P = UI."]
+];
+function referencePage(){
+ return head("Elektron ma’lumotnoma","Tezkor nazariy materiallar")+`<div class="panel reference"><div class="ref-list" id="refList">${refs.map((r,i)=>`<button type="button" class="ref-item ${i?"":"active"}" data-ref="${i}">${r[0]}</button>`).join("")}</div><div id="refText" style="padding:10px 14px;line-height:1.8"><h2>${refs[0][0]}</h2><p>${refs[0][1]}</p></div></div>`;
+}
+let noteIdx=0;
+function notebookPage(){
+ const notes=store.get("edulab_notes");
+ const list=notes.length?notes.map((n,i)=>`<div class="note ${i===noteIdx?"active":""}" data-note="${i}"><b>${esc(n.title||"Nomsiz yozuv")}</b><small>${esc(n.date)}</small></div>`).join(""):`<p class="muted">Yozuvlar yo‘q</p>`;
+ return head("Virtual daftarcha","Laboratoriya kuzatuv va xulosalarini saqlash")+`<div class="panel notebook"><div class="notes"><button type="button" class="btn primary" id="newNote" style="width:100%;margin-bottom:8px">+ Yangi yozuv</button><div id="noteList">${list}</div></div><div><input id="noteTitle" placeholder="Yozuv nomi" aria-label="Yozuv nomi"><textarea id="noteText" rows="16" placeholder="Kuzatishlar, formulalar va xulosalar…" aria-label="Matn" style="margin-top:8px"></textarea><div style="display:flex;gap:8px;margin-top:8px"><button type="button" class="btn primary" id="saveNote">Saqlash</button><button type="button" class="btn danger" id="delNote">O‘chirish</button></div></div></div>`;
+}
+function teacherPage(){
+ const tasks=store.get("edulab_tasks");
+ return head("O‘qituvchi kabineti","Sinf vazifalari, topshiriqlar va statistikani boshqarish")+`<div class="grid3"><div class="panel"><h2>Jami o‘quvchilar</h2><b style="font-size:30px">24</b></div><div class="panel"><h2>Faol vazifalar</h2><b style="font-size:30px">${tasks.length}</b></div><div class="panel"><h2>Topshirilgan</h2><b style="font-size:30px">68%</b></div></div><div class="panel"><h2>Yangi vazifa</h2><div class="grid3"><input id="taskName" placeholder="Vazifa nomi" aria-label="Vazifa nomi"><input id="taskDate" type="date" aria-label="Muddati"><button type="button" class="btn primary" id="addTask">Qo‘shish</button></div></div><div class="panel" style="overflow:auto"><h2>Vazifalar</h2><table class="table"><thead><tr><th>Vazifa</th><th>Muddati</th><th>Holati</th></tr></thead><tbody>${tasks.map(t=>`<tr><td>${esc(t.name)}</td><td>${esc(t.date)}</td><td>Faol</td></tr>`).join("")||`<tr><td colspan="3">Vazifalar mavjud emas</td></tr>`}</tbody></table></div>`;
+}
+function rankingPage(){
+ const st=[["Aziza Karimova",980,"💎"],["Jasurbek Aliyev",925,"🥇"],["Malika Xolmirzayeva",890,"🥈"],["Sherzod Rahimov",845,"🥉"],["Dilnoza Saidova",800,"⭐"],["Bekzod Toshpo‘latov",760,"⭐"]];
+ return head("O‘quvchi reytingi","Ballar, ketma-ketlik va yutuqlar")+`<div class="grid2"><div class="panel"><h2>Umumiy reyting</h2><table class="table"><tbody>${st.map((s,i)=>`<tr><td><span class="rank">${i+1}</span></td><td><b>${s[0]}</b></td><td>${s[1]} XP</td><td>${s[2]}</td></tr>`).join("")}</tbody></table></div><div class="panel"><h2>Yutuqlar</h2>${badgesHtml()}</div></div>`;
+}
+
+/* ---------- Sahifalarni ulash ---------- */
+function bindNotebook(){
+ const notes=store.get("edulab_notes"),fill=n=>{$("#noteTitle").value=n?n.title:"";$("#noteText").value=n?n.text||"":""};
+ if(noteIdx>=notes.length)noteIdx=0;
+ fill(notes[noteIdx]);
+ $("#saveNote").onclick=()=>{
+  const title=$("#noteTitle").value.trim(),text=$("#noteText").value.trim();
+  if(!title&&!text)return toast("Yozuv bo‘sh");
+  const item={title:title||"Nomsiz yozuv",text,date:new Date().toLocaleDateString("uz-UZ")};
+  if(notes[noteIdx]&&$("#noteList .note.active"))notes[noteIdx]=item;else{notes.unshift(item);noteIdx=0}
+  if(store.set("edulab_notes",notes)){toast("Yozuv saqlandi");renderPage("notebook")}
+ };
+ $$(".note").forEach(n=>n.onclick=()=>{noteIdx=+n.dataset.note;$$(".note").forEach(x=>x.classList.toggle("active",x===n));fill(notes[noteIdx])});
+ $("#newNote").onclick=()=>{$$(".note").forEach(x=>x.classList.remove("active"));fill(null);$("#noteTitle").focus()};
+ $("#delNote").onclick=()=>{
+  const act=$("#noteList .note.active");if(!act)return toast("Yozuv tanlanmagan");
+  notes.splice(noteIdx,1);noteIdx=0;store.set("edulab_notes",notes);toast("Yozuv o‘chirildi");renderPage("notebook");
+ };
+}
+function renderPage(page){
+ stop3d();
+ $$(".nav").forEach(n=>{const a=n.dataset.page===page;n.classList.toggle("active",a);a?n.setAttribute("aria-current","page"):n.removeAttribute("aria-current")});
+ const pages={lab:labPage,periodic:periodicPage,molecule:moleculePage,convert:convertPage,formula:formulaPage,balance:balancePage,reference:referencePage,notebook:notebookPage,teacher:teacherPage,ranking:rankingPage};
+ $("#main").innerHTML=(pages[page]||rankingPage)();
+ if(page==="lab"){
+  bindLab();
+ }
+ if(page==="periodic")bindPeriodic();
+ if(page==="molecule")bindMolecule();
+ if(page==="convert"){
+  setupConvert();$("#cat").onchange=setupConvert;$("#cv").oninput=convert;$("#cu1").onchange=convert;$("#cu2").onchange=convert;
+  $("#swapUnits").onclick=()=>{const a=$("#cu1").selectedIndex;$("#cu1").selectedIndex=$("#cu2").selectedIndex;$("#cu2").selectedIndex=a;convert()};
+ }
+ if(page==="formula"){
+  const run=()=>{const r=molarMass($("#formulaInput").value.trim());
+   $("#formulaResult").innerHTML=r?`Molar massa: <b>${r.sum.toFixed(3)} g/mol</b><br>Elementlar: ${Object.entries(r.g).map(x=>esc(x[0])+" — "+x[1]+" atom").join(", ")}`:"Noto‘g‘ri yoki noma’lum formula"};
+  $("#calcFormula").onclick=run;$("#formulaInput").onkeydown=e=>{if(e.key==="Enter")run()};run();
+ }
+ if(page==="balance"){
+  const run=()=>{const r=balanceEquation($("#equationInput").value);
+   $("#balanceResult").textContent=r?r.left.join(" + ")+" → "+r.right.join(" + "):"Koeffitsiyentlarni topib bo‘lmadi"};
+  $("#calcBalance").onclick=run;$("#equationInput").onkeydown=e=>{if(e.key==="Enter")run()};run();
+ }
+ if(page==="reference")$$(".ref-item").forEach(b=>b.onclick=()=>{
+  $$(".ref-item").forEach(x=>x.classList.remove("active"));b.classList.add("active");
+  const r=refs[+b.dataset.ref];$("#refText").innerHTML=`<h2>${r[0]}</h2><p>${r[1]}</p>`;
+ });
+ if(page==="notebook")bindNotebook();
+ if(page==="teacher")$("#addTask").onclick=()=>{
+  const name=$("#taskName").value.trim(),date=$("#taskDate").value;
+  if(!name||!date)return toast("Vazifa va muddatni kiriting");
+  const tasks=store.get("edulab_tasks");tasks.unshift({name,date});
+  if(store.set("edulab_tasks",tasks)){toast("Vazifa qo‘shildi");renderPage("teacher")}
+ };
+}
+$$(".nav").forEach(b=>b.onclick=()=>renderPage(b.dataset.page));
+renderPage("lab");
+</script>
+</body>
+</html>
